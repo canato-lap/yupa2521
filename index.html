@@ -404,7 +404,7 @@
                         <div class="neu-pressed p-1"><input type="date" id="set-wedding-date" class="w-full bg-transparent p-2 text-slate-800 focus:outline-none"></div>
                     </div>
                     <div class="pt-2">
-                        <button onclick="saveProfileSettings(this)" class="neu-btn-primary w-full py-3.5 text-sm font-bold">บันทึกการตั้งค่า</button>
+                        <button onclick="saveProfileSettings()" class="neu-btn-primary w-full py-3.5 text-sm font-bold" id="btn-save-settings">บันทึกการตั้งค่า</button>
                     </div>
                 </div>
             </section>
@@ -591,29 +591,20 @@
     <!-- ================= JAVASCRIPT ================= -->
     <script>
         // --- 0. API LINK TO GOOGLE DRIVE ---
-        const API_URL = "https://script.google.com/macros/s/AKfycbyAQ4GGij84CBusCQ2nZF5WsQkpR2zhV3Sqm57vFIoFdXW_MV68yqgIyrhYHoSByGeK/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbxX2HVWJaXprDZoOpkWXNrHE7Wvx9S-7dD6w0YtVSaqrDW2L7HXGS5miihTlBipMZl_/exec";
 
         // --- 1. CORE UTILITIES ---
-        function vibratePhone(pattern = 40) { 
-            if ('vibrate' in navigator) navigator.vibrate(pattern); 
-        }
-        function getFormattedDateString(dateObj) { 
-            return `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}-${String(dateObj.getDate()).padStart(2, '0')}`; 
-        }
-        function parseDateStr(dStr) { 
-            const parts = dStr.split('-'); 
-            if (parts.length !== 3) return new Date();
-            return new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2])); 
-        }
+        function vibratePhone(pattern = 40) { if ('vibrate' in navigator) navigator.vibrate(pattern); }
+        function getFormattedDateString(dateObj) { return `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}-${String(dateObj.getDate()).padStart(2, '0')}`; }
+        function parseDateStr(dStr) { const parts = dStr.split('-'); if (parts.length !== 3) return new Date(); return new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2])); }
         function formatTimeSpan(totalSeconds) {
             const h = Math.floor(totalSeconds / 3600);
             const m = Math.floor((totalSeconds % 3600) / 60);
             const s = totalSeconds % 60;
-            if (h > 0) return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-            return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+            return h > 0 ? `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}` : `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
         }
 
-        // --- 2. GLOBAL DATA & CONFIGURATION (BRIDE VERSION) ---
+        // --- 2. GLOBAL DATA & CONFIGURATION ---
         const monthsData = [
             { name: "มิถุนายน", days: 30, start: 1, strategyTitle: "เดือนที่ 1: ปรับสภาพและสร้างนิสัย", strategyDesc: "เริ่มต้นเบาๆ สร้างความเคยชิน ไม่หักโหม" },
             { name: "กรกฎาคม", days: 31, start: 3, strategyTitle: "เดือนที่ 2: ความสม่ำเสมอ", strategyDesc: "รักษาวินัยให้ต่อเนื่อง ร่างกายเริ่มปรับตัว" },
@@ -623,38 +614,13 @@
             { name: "พฤศจิกายน", days: 30, start: 0, strategyTitle: "เดือนที่ 6: ลดบวมน้ำก่อนวันงาน", strategyDesc: "ออกเบาๆ เน้นงดของหวานและดื่มน้ำล้างโซเดียม" }
         ];
         const thaiMonthNames = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
-        
-        const monthlyQuestsConfig = {
-            0: [
-                { id: 'm0_q1', title: '🔥 ก้าวแรกของเจ้าสาว', desc: 'จบโปรแกรม Lv.1 (4 รอบ) ขึ้นไป (5 วัน)', target: 5, isStreak: false, check: d => d && d.g1 && d.wkLvl >= 1 },
-                { id: 'm0_q2', title: '🥗 เริ่มต้นเบาๆ', desc: 'ทำ IF คู่กับ คุมหวาน สำเร็จ (15 วัน)', target: 15, isStreak: false, check: d => d && d.c1 && d.c2 },
-                { id: 'm0_q3', title: '💧 ผิวใสใจฟู', desc: 'ออกกำลังกาย คู่กับ ดื่มน้ำ 2.5L (5 วัน)', target: 5, isStreak: false, check: d => d && d.g1 && d.c3 }
-            ],
-            1: [
-                { id: 'm1_q1', title: '🔥 ฟิตต่อเนื่อง', desc: 'จบโปรแกรม Lv.1 (4 รอบ) ขึ้นไป (8 วัน)', target: 8, isStreak: false, check: d => d && d.g1 && d.wkLvl >= 1 },
-                { id: 'm1_q2', title: '💧 สายน้ำแห่งชีวิต', desc: 'ดื่มน้ำ 2.5L ติดต่อกัน 7 วันรวด', target: 7, isStreak: true, check: d => d && d.c3 },
-                { id: 'm1_q3', title: '🥗 หวานน้อยแต่ฟิตมาก', desc: 'ออกกำลังกาย คู่กับ คุมหวาน (8 วัน)', target: 8, isStreak: false, check: d => d && d.g1 && d.c2 }
-            ],
-            2: [
-                { id: 'm2_q1', title: '🔥 แตะขีดจำกัด', desc: 'จบโปรแกรม Lv.2 (6 รอบ) ขึ้นไป (2 วัน)', target: 2, isStreak: false, check: d => d && d.g1 && d.wkLvl >= 2 },
-                { id: 'm2_q2', title: '🛡️ งดหวานสู้ตาย', desc: 'คุมหวาน/งดหวาน ติดต่อกัน 7 วันรวด', target: 7, isStreak: true, check: d => d && d.c2 },
-                { id: 'm2_q3', title: '⏱️ คุมเวลาคุมร่าง', desc: 'ออกกำลังกาย คู่กับ ทำ IF (10 วัน)', target: 10, isStreak: false, check: d => d && d.g1 && d.c1 }
-            ],
-            3: [
-                { id: 'm3_q1', title: '🔥 พลังเริ่มมา', desc: 'จบโปรแกรม Lv.2 (6 รอบ) ขึ้นไป (4 วัน)', target: 4, isStreak: false, check: d => d && d.g1 && d.wkLvl >= 2 },
-                { id: 'm3_q2', title: '💧 ดื่มน้ำทะลุเป้า', desc: 'ดื่มน้ำ 2.5L ติดต่อกัน 10 วันรวด', target: 10, isStreak: true, check: d => d && d.c3 },
-                { id: 'm3_q3', title: '👑 วันสุดเพอร์เฟกต์', desc: 'ติ๊กภารกิจครบ 4 ข้อในวันเดียว (4 วัน)', target: 4, isStreak: false, check: d => d && d.g1 && d.c1 && d.c2 && d.c3 }
-            ],
-            4: [
-                { id: 'm4_q1', title: '🔥 ชนะใจตัวเอง', desc: 'จบโปรแกรม Lv.3 (8 รอบเต็มสูบ) (1 วัน)', target: 1, isStreak: false, check: d => d && d.g1 && d.wkLvl >= 3 },
-                { id: 'm4_q2', title: '⏱️ IF Master', desc: 'ทำ IF 16/8 สำเร็จสะสม (20 วัน)', target: 20, isStreak: false, check: d => d && d.c1 },
-                { id: 'm4_q3', title: '⚔️ รีดไขมัน', desc: 'จบ Lv.2+ คู่กับ ดื่มน้ำ+คุมหวาน (5 วัน)', target: 5, isStreak: false, check: d => d && d.g1 && d.wkLvl >= 2 && d.c3 && d.c2 }
-            ],
-            5: [
-                { id: 'm5_q1', title: '🚶 Active Rest', desc: 'ออกกำลังกายขยับตัว (Level ใดก็ได้) (15 วัน)', target: 15, isStreak: false, check: d => d && d.g1 },
-                { id: 'm5_q2', title: '🚫 ไร้น้ำตาลลดบวม', desc: 'คุมหวาน/งดของหวานเด็ดขาด (20 วัน)', target: 20, isStreak: false, check: d => d && d.c2 },
-                { id: 'm5_q3', title: '💧 ล้างโซเดียม', desc: 'ดื่มน้ำ 2.5L คู่กับ ทำ IF (15 วัน)', target: 15, isStreak: false, check: d => d && d.c3 && d.c1 }
-            ]
+        const monthlyQuestsConfig = { 
+            0: [{ id: 'm0_q1', title: '🔥 ก้าวแรกของเจ้าสาว', desc: 'จบโปรแกรม Lv.1 (4 รอบ) ขึ้นไป (5 วัน)', target: 5, isStreak: false, check: d => d && d.g1 && d.wkLvl >= 1 }, { id: 'm0_q2', title: '🥗 เริ่มต้นเบาๆ', desc: 'ทำ IF คู่กับ คุมหวาน สำเร็จ (15 วัน)', target: 15, isStreak: false, check: d => d && d.c1 && d.c2 }, { id: 'm0_q3', title: '💧 ผิวใสใจฟู', desc: 'ออกกำลังกาย คู่กับ ดื่มน้ำ 2.5L (5 วัน)', target: 5, isStreak: false, check: d => d && d.g1 && d.c3 }], 
+            1: [{ id: 'm1_q1', title: '🔥 ฟิตต่อเนื่อง', desc: 'จบโปรแกรม Lv.1 (4 รอบ) ขึ้นไป (8 วัน)', target: 8, isStreak: false, check: d => d && d.g1 && d.wkLvl >= 1 }, { id: 'm1_q2', title: '💧 สายน้ำแห่งชีวิต', desc: 'ดื่มน้ำ 2.5L ติดต่อกัน 7 วันรวด', target: 7, isStreak: true, check: d => d && d.c3 }, { id: 'm1_q3', title: '🥗 หวานน้อยแต่ฟิตมาก', desc: 'ออกกำลังกาย คู่กับ คุมหวาน (8 วัน)', target: 8, isStreak: false, check: d => d && d.g1 && d.c2 }], 
+            2: [{ id: 'm2_q1', title: '🔥 แตะขีดจำกัด', desc: 'จบโปรแกรม Lv.2 (6 รอบ) ขึ้นไป (2 วัน)', target: 2, isStreak: false, check: d => d && d.g1 && d.wkLvl >= 2 }, { id: 'm2_q2', title: '🛡️ งดหวานสู้ตาย', desc: 'คุมหวาน/งดหวาน ติดต่อกัน 7 วันรวด', target: 7, isStreak: true, check: d => d && d.c2 }, { id: 'm2_q3', title: '⏱️ คุมเวลาคุมร่าง', desc: 'ออกกำลังกาย คู่กับ ทำ IF (10 วัน)', target: 10, isStreak: false, check: d => d && d.g1 && d.c1 }], 
+            3: [{ id: 'm3_q1', title: '🔥 พลังเริ่มมา', desc: 'จบโปรแกรม Lv.2 (6 รอบ) ขึ้นไป (4 วัน)', target: 4, isStreak: false, check: d => d && d.g1 && d.wkLvl >= 2 }, { id: 'm3_q2', title: '💧 ดื่มน้ำทะลุเป้า', desc: 'ดื่มน้ำ 2.5L ติดต่อกัน 10 วันรวด', target: 10, isStreak: true, check: d => d && d.c3 }, { id: 'm3_q3', title: '👑 วันสุดเพอร์เฟกต์', desc: 'ติ๊กภารกิจครบ 4 ข้อในวันเดียว (4 วัน)', target: 4, isStreak: false, check: d => d && d.g1 && d.c1 && d.c2 && d.c3 }], 
+            4: [{ id: 'm4_q1', title: '🔥 ชนะใจตัวเอง', desc: 'จบโปรแกรม Lv.3 (8 รอบเต็มสูบ) (1 วัน)', target: 1, isStreak: false, check: d => d && d.g1 && d.wkLvl >= 3 }, { id: 'm4_q2', title: '⏱️ IF Master', desc: 'ทำ IF 16/8 สำเร็จสะสม (20 วัน)', target: 20, isStreak: false, check: d => d && d.c1 }, { id: 'm4_q3', title: '⚔️ รีดไขมัน', desc: 'จบ Lv.2+ คู่กับ ดื่มน้ำ+คุมหวาน (5 วัน)', target: 5, isStreak: false, check: d => d && d.g1 && d.wkLvl >= 2 && d.c3 && d.c2 }], 
+            5: [{ id: 'm5_q1', title: '🚶 Active Rest', desc: 'ออกกำลังกายขยับตัว (Level ใดก็ได้) (15 วัน)', target: 15, isStreak: false, check: d => d && d.g1 }, { id: 'm5_q2', title: '🚫 ไร้น้ำตาลลดบวม', desc: 'คุมหวาน/งดของหวานเด็ดขาด (20 วัน)', target: 20, isStreak: false, check: d => d && d.c2 }, { id: 'm5_q3', title: '💧 ล้างโซเดียม', desc: 'ดื่มน้ำ 2.5L คู่กับ ทำ IF (15 วัน)', target: 15, isStreak: false, check: d => d && d.c3 && d.c1 }] 
         };
 
         function getRecommendedWorkout(monthIdx, dayOfWeek) {
@@ -662,12 +628,7 @@
             const activity = dayActivities[dayOfWeek];
             let level = 1; 
             const nameMap = { 'G1': '🔥 กลุ่ม 1 (เน้นเบิร์นไขมัน)', 'G2': '🍑 กลุ่ม 2 (กระชับสะโพกและขา)', 'G3': '🧘‍♀️ กลุ่ม 3 (เน้นหน้าท้องและเอว)', 'RANDOM': '🎲 วันศุกร์ (Mix & Match 4 ท่า)', 'REST': '🛏️ วันพักผ่อน (Rest Day)' };
-            
-            return {
-                typeId: activity,
-                level: level,
-                displayName: `${nameMap[activity]} ${activity !== 'REST' ? `[4 รอบ]` : ''}`
-            };
+            return { typeId: activity, level: level, displayName: `${nameMap[activity]} ${activity !== 'REST' ? `[4 รอบ]` : ''}` };
         }
 
         // --- 3. STATE MANAGEMENT ---
@@ -684,36 +645,16 @@
         let recommendedWkType = 'G1';
         let recommendedWkLvl = 1;
 
-        // --- FETCH TO GOOGLE DRIVE ---
+        // --- FETCH TO GOOGLE DRIVE (CLOUD SYNC) ---
         function saveLogToCloud(dateStr) {
             const dayData = logs[dateStr] || {};
-            const payload = {
-                type: 'log',
-                date: dateStr,
-                weight: dayData.weight || "",
-                g1: !!dayData.g1,
-                c1: !!dayData.c1,
-                c2: !!dayData.c2,
-                c3: !!dayData.c3
-            };
-            fetch(API_URL, {
-                method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(payload)
-            }).catch(e => console.log('Background sync error (Logs):', e));
+            const payload = { date: dateStr, weight: dayData.weight || "", g1: !!dayData.g1, c1: !!dayData.c1, c2: !!dayData.c2, c3: !!dayData.c3 };
+            fetch(API_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(payload) }).catch(e => console.log('Sync Error:', e));
         }
 
         function saveProfileToCloud() {
-            const payload = {
-                type: 'profile',
-                payload: {
-                    profile: profile,
-                    tickets: tickets,
-                    claimedMilestones: claimedMilestones,
-                    claimedMonthlyQuests: claimedMonthlyQuests
-                }
-            };
-            fetch(API_URL, {
-                method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(payload)
-            }).catch(e => console.log('Background sync error (Profile):', e));
+            const payload = { type: 'profile', payload: { profile: profile, tickets: tickets, claimedMilestones: claimedMilestones, claimedMonthlyQuests: claimedMonthlyQuests } };
+            fetch(API_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(payload) }).catch(e => console.log('Sync Error:', e));
         }
 
         // --- 4. AUDIO SYSTEM ---
@@ -761,37 +702,23 @@
             } catch (e) {}
         }
 
-        // --- 5. SMART WORKOUT COACH (Timer Logic) ---
-        let currentWkType = 'G1';
-        let currentWkLvl = 1;
-        let coachInterval = null;
-        let coachIsRunning = false;
-        let wkPhases = [];
-        let currentPhaseIdx = 0;
-        let phaseSecsLeft = 0;
-        let totalSecsLeft = 0;
-        let randomSelectedExercises = []; 
+        // --- 5. SMART WORKOUT COACH ---
+        let currentWkType = 'G1'; let currentWkLvl = 1; let coachInterval = null; let coachIsRunning = false;
+        let wkPhases = []; let currentPhaseIdx = 0; let phaseSecsLeft = 0; let totalSecsLeft = 0; let randomSelectedExercises = []; 
 
         function setRecommendedWorkout() {
             vibratePhone(30);
-            if (recommendedWkType === 'REST') {
-                alert("วันนี้โค้ชให้พักผ่อนเต็มที่นะคะ! 🛏️ ขยับตัวเบาๆ ทำงานบ้านก็พอค่ะ");
-                return;
-            }
-            selectWorkout(recommendedWkType);
-            setTimeout(() => { selectLevel(recommendedWkLvl); }, 50);
+            if (recommendedWkType === 'REST') { alert("วันนี้โค้ชให้พักผ่อนเต็มที่นะคะ! 🛏️ ขยับตัวเบาๆ ทำงานบ้านก็พอค่ะ"); return; }
+            selectWorkout(recommendedWkType); setTimeout(() => { selectLevel(recommendedWkLvl); }, 50);
         }
 
         function selectWorkout(type) {
-            vibratePhone(20);
-            currentWkType = type;
-            
+            vibratePhone(20); currentWkType = type;
             ['G1', 'G2', 'G3', 'RANDOM'].forEach(id => {
                 const btn = document.getElementById(`btn-wk-${id}`);
                 if(type === id) { btn.className = "neu-pressed text-[#a855f7] py-2.5 text-xs font-bold rounded-xl transition"; }
                 else { btn.className = "neu-btn text-slate-500 py-2.5 text-xs font-bold rounded-xl transition"; }
             });
-            
             if(type === 'RANDOM') {
                 const allEx = [
                     {name: "🔥 กระโดดตบ", d: 60}, {name: "🔥 ท่าปีนเขา", d: 40}, {name: "🔥 วิ่งยกเข่าสูง", d: 60},
@@ -800,13 +727,11 @@
                 ];
                 randomSelectedExercises = [...allEx].sort(() => 0.5 - Math.random()).slice(0, 4);
             }
-
             selectLevel(currentWkLvl); 
         }
 
         function selectLevel(lvl) {
-            vibratePhone(20);
-            currentWkLvl = lvl;
+            vibratePhone(20); currentWkLvl = lvl;
             [0, 1, 2, 3].forEach(id => {
                 const btn = document.getElementById(`btn-lvl-${id}`);
                 if(lvl === id) { btn.className = "neu-pressed text-[#a855f7] py-2 text-[11px] font-bold rounded-xl transition flex flex-col items-center"; }
@@ -816,9 +741,7 @@
         }
 
         function generateWorkoutPhases() {
-            let p = [];
-            let rounds = currentWkLvl === 0 ? 2 : (currentWkLvl === 1 ? 4 : (currentWkLvl === 2 ? 6 : 8));
-            
+            let p = []; let rounds = currentWkLvl === 0 ? 2 : (currentWkLvl === 1 ? 4 : (currentWkLvl === 2 ? 6 : 8));
             for(let i=0; i<rounds; i++) {
                 if (currentWkType === 'G1') {
                     p.push({name: "🔥 กระโดดตบ (รอบ " + (i+1) + ")", duration: 60, color: "text-[#a855f7]", ringColor: "#a855f7"});
@@ -845,9 +768,7 @@
                         if (idx < 3) p.push({name: "⏱️ เตรียมตัวท่าต่อไป", duration: 10, color: "text-amber-500", ringColor: "#f59e0b"});
                     });
                 }
-                if (i < rounds - 1) {
-                    p.push({name: "💧 พัก 1 นาที (หายใจลึกๆ)", duration: 60, color: "text-sky-500", ringColor: "#0ea5e9"});
-                }
+                if (i < rounds - 1) p.push({name: "💧 พัก 1 นาที (หายใจลึกๆ)", duration: 60, color: "text-sky-500", ringColor: "#0ea5e9"});
             }
             return p;
         }
@@ -855,9 +776,7 @@
         function loadWorkoutProgram() {
             resetSmartTimer();
             wkPhases = generateWorkoutPhases();
-            totalSecsLeft = 0;
-            wkPhases.forEach(ph => totalSecsLeft += ph.duration);
-            
+            totalSecsLeft = 0; wkPhases.forEach(ph => totalSecsLeft += ph.duration);
             if (wkPhases.length > 0) {
                 phaseSecsLeft = wkPhases[0].duration;
                 updateCoachUI();
@@ -871,39 +790,28 @@
         function updateCoachUI() {
             document.getElementById('timer-total-display').innerText = formatTimeSpan(totalSecsLeft);
             document.getElementById('timer-phase-display').innerText = formatTimeSpan(phaseSecsLeft);
-            
             if (coachIsRunning || currentPhaseIdx > 0) {
                 const currentPh = wkPhases[currentPhaseIdx];
                 document.getElementById('timer-phase-name').innerText = currentPh.name;
                 document.getElementById('timer-phase-name').className = `text-[11px] font-extrabold mt-2 block px-2 leading-tight ${currentPh.color}`;
-                
-                const fullDash = 728.8;
-                let pct = phaseSecsLeft / currentPh.duration;
+                const fullDash = 728.8; let pct = phaseSecsLeft / currentPh.duration;
                 document.getElementById('timer-progress-svg').style.strokeDashoffset = fullDash - (pct * fullDash);
-                
                 const svgCircle = document.getElementById('timer-progress-svg');
-                svgCircle.style.color = currentPh.ringColor;
-                svgCircle.classList.remove('text-slate-300');
+                svgCircle.style.color = currentPh.ringColor; svgCircle.classList.remove('text-slate-300');
             }
         }
 
         function toggleSmartTimer() {
-            vibratePhone(40);
-            initAudio();
-
+            vibratePhone(40); initAudio();
             if (coachIsRunning) {
                 clearInterval(coachInterval); coachIsRunning = false;
                 document.getElementById('btn-timer-action').innerText = "RESUME";
             } else {
                 if(totalSecsLeft <= 0) return;
-                coachIsRunning = true;
-                document.getElementById('btn-timer-action').innerText = "PAUSE";
-                
+                coachIsRunning = true; document.getElementById('btn-timer-action').innerText = "PAUSE";
                 updateCoachUI();
                 coachInterval = setInterval(() => {
-                    phaseSecsLeft--;
-                    totalSecsLeft--;
-                    
+                    phaseSecsLeft--; totalSecsLeft--;
                     if (phaseSecsLeft <= 0) {
                         currentPhaseIdx++;
                         if (currentPhaseIdx >= wkPhases.length) {
@@ -917,20 +825,15 @@
 
                             setTimeout(() => {
                                 if(!logs[realTodayStr]) logs[realTodayStr] = {}; 
-                                logs[realTodayStr]['g1'] = true; 
-                                logs[realTodayStr]['wkType'] = currentWkType;
-                                logs[realTodayStr]['wkLvl'] = currentWkLvl; 
+                                logs[realTodayStr]['g1'] = true; logs[realTodayStr]['wkType'] = currentWkType; logs[realTodayStr]['wkLvl'] = currentWkLvl; 
                                 localStorage.setItem('brideWeddingLogs', JSON.stringify(logs)); 
                                 saveLogToCloud(realTodayStr); // ☁️
                                 refreshAll(false);
-                                
                                 showRewardModal(`คุณออกกำลังกายจนจบโปรแกรมแล้ว!<br>แอปได้บันทึก <b>"เป้าหมายออกกำลังกาย"</b> ของวันนี้ให้เรียบร้อยค่ะ 🏆`, "ภารกิจเสร็จสิ้น!");
                             }, 2000);
-
                             return;
                         } else {
-                            phaseSecsLeft = wkPhases[currentPhaseIdx].duration;
-                            playShortBeep(); vibratePhone([100, 50, 100]);
+                            phaseSecsLeft = wkPhases[currentPhaseIdx].duration; playShortBeep(); vibratePhone([100, 50, 100]);
                         }
                     }
                     updateCoachUI();
@@ -939,160 +842,95 @@
         }
 
         function resetSmartTimer() {
-            vibratePhone(20);
-            clearInterval(coachInterval); coachIsRunning = false;
-            currentPhaseIdx = 0;
-            document.getElementById('btn-timer-action').innerText = "START";
-            
-            wkPhases = generateWorkoutPhases();
-            totalSecsLeft = 0; wkPhases.forEach(ph => totalSecsLeft += ph.duration);
+            vibratePhone(20); clearInterval(coachInterval); coachIsRunning = false; currentPhaseIdx = 0; document.getElementById('btn-timer-action').innerText = "START";
+            wkPhases = generateWorkoutPhases(); totalSecsLeft = 0; wkPhases.forEach(ph => totalSecsLeft += ph.duration);
             if (wkPhases.length > 0) phaseSecsLeft = wkPhases[0].duration;
-            
             updateCoachUI();
-            document.getElementById('timer-phase-name').innerText = "พร้อมแล้วกด START เลย!";
-            document.getElementById('timer-phase-name').className = "text-[11px] font-extrabold text-slate-500 mt-2 block px-2 leading-tight";
-            document.getElementById('timer-progress-svg').style.strokeDashoffset = "0"; 
-            document.getElementById('timer-progress-svg').classList.add('text-slate-300');
+            document.getElementById('timer-phase-name').innerText = "พร้อมแล้วกด START เลย!"; document.getElementById('timer-phase-name').className = "text-[11px] font-extrabold text-slate-500 mt-2 block px-2 leading-tight";
+            document.getElementById('timer-progress-svg').style.strokeDashoffset = "0"; document.getElementById('timer-progress-svg').classList.add('text-slate-300');
         }
 
-
-        // --- 6. UI HELPERS & OTHERS ---
+        // --- 6. UI HELPERS ---
         function spawnFloatingText(e, text, colorClass = 'text-[#a855f7]') {
-            const el = document.createElement('span'); el.innerText = text; el.className = `floating-text ${colorClass} text-sm`;
-            let x, y;
-            if (e && e.touches && e.touches.length > 0) { x = e.touches[0].clientX; y = e.touches[0].clientY; }
-            else if (e && e.clientX !== undefined) { x = e.clientX; y = e.clientY; }
-            else if (e && e.target) { const rect = e.target.getBoundingClientRect(); x = rect.left + rect.width / 2; y = rect.top; }
-            else { x = window.innerWidth / 2; y = window.innerHeight / 2; }
-            el.style.left = `${x - 20}px`; el.style.top = `${y - 10}px`;
-            document.body.appendChild(el); setTimeout(() => el.remove(), 1000);
+            const el = document.createElement('span'); el.innerText = text; el.className = `floating-text ${colorClass} text-sm`; let x, y;
+            if (e && e.touches && e.touches.length > 0) { x = e.touches[0].clientX; y = e.touches[0].clientY; } else if (e && e.clientX !== undefined) { x = e.clientX; y = e.clientY; } else if (e && e.target) { const rect = e.target.getBoundingClientRect(); x = rect.left + rect.width / 2; y = rect.top; } else { x = window.innerWidth / 2; y = window.innerHeight / 2; }
+            el.style.left = `${x - 20}px`; el.style.top = `${y - 10}px`; document.body.appendChild(el); setTimeout(() => el.remove(), 1000);
         }
 
         function animateValue(id, start, end, duration, suffix = " กก.") {
             const obj = document.getElementById(id); let startTimestamp = null;
             const step = (timestamp) => {
-                if (!startTimestamp) startTimestamp = timestamp;
-                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                if (!startTimestamp) startTimestamp = timestamp; const progress = Math.min((timestamp - startTimestamp) / duration, 1);
                 obj.innerText = (progress * (end - start) + start).toFixed(1) + suffix;
                 if (progress < 1) window.requestAnimationFrame(step);
             };
             window.requestAnimationFrame(step);
         }
 
-        // --- 7. MONTHLY QUESTS SYSTEM (ระบบภารกิจประจำเดือน) ---
+        // --- 7. MONTHLY QUESTS SYSTEM ---
         function renderMonthlyQuests() {
-            const monthData = monthsData[currentCalMonth];
-            const yyyy = 2026;
-            const mm = currentCalMonth + 6; 
-            
+            const monthData = monthsData[currentCalMonth]; const yyyy = 2026; const mm = currentCalMonth + 6; 
             document.getElementById('quest-month-badge').innerText = monthData.name;
-            
             const monthQuests = monthlyQuestsConfig[currentCalMonth] || monthlyQuestsConfig[0];
             let html = '';
             
             monthQuests.forEach((q, idx) => {
                 let progress = 0;
-                
                 if (q.isStreak) {
-                    let maxStreak = 0;
-                    let currentStreak = 0;
+                    let maxStreak = 0; let currentStreak = 0;
                     for(let i = 1; i <= monthData.days; i++) {
                         let dStr = `${yyyy}-${String(mm).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
-                        if (q.check(logs[dStr])) {
-                            currentStreak++;
-                            if(currentStreak > maxStreak) maxStreak = currentStreak;
-                        } else {
-                            currentStreak = 0; 
-                        }
+                        if (q.check(logs[dStr])) { currentStreak++; if(currentStreak > maxStreak) maxStreak = currentStreak; } else { currentStreak = 0; }
                     }
                     progress = maxStreak;
                 } else {
                     for(let i = 1; i <= monthData.days; i++) {
                         let dStr = `${yyyy}-${String(mm).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
-                        if (q.check(logs[dStr])) {
-                            progress++;
-                        }
+                        if (q.check(logs[dStr])) { progress++; }
                     }
                 }
                 
-                let displayProgress = Math.min(progress, q.target);
-                let pct = (displayProgress / q.target) * 100;
-                let claimedKey = `${yyyy}_${mm}_${q.id}`;
-                let isClaimed = claimedMonthlyQuests.includes(claimedKey);
-                let isCompleted = progress >= q.target;
-
+                let displayProgress = Math.min(progress, q.target); let pct = (displayProgress / q.target) * 100;
+                let claimedKey = `${yyyy}_${mm}_${q.id}`; let isClaimed = claimedMonthlyQuests.includes(claimedKey); let isCompleted = progress >= q.target;
                 let actionHtml = '';
-                if (isClaimed) {
-                    actionHtml = `<span class="text-[9px] text-emerald-500 font-black">✅ สำเร็จ</span>`;
-                } else if (isCompleted) {
-                    actionHtml = `<button onclick="claimMonthlyReward('${claimedKey}')" class="text-[9px] bg-[var(--accent-grad)] text-white px-3 py-1 rounded-full shadow-sm font-bold animate-pulse active:scale-95 transition">รับตั๋ว 🎟️</button>`;
-                } else {
-                    actionHtml = `<span class="text-[10px] text-slate-500 font-bold">${displayProgress}/${q.target}</span>`;
-                }
+                if (isClaimed) { actionHtml = `<span class="text-[9px] text-emerald-500 font-black">✅ สำเร็จ</span>`; } else if (isCompleted) { actionHtml = `<button onclick="claimMonthlyReward('${claimedKey}')" class="text-[9px] bg-[var(--accent-grad)] text-white px-3 py-1 rounded-full shadow-sm font-bold animate-pulse active:scale-95 transition">รับตั๋ว 🎟️</button>`; } else { actionHtml = `<span class="text-[10px] text-slate-500 font-bold">${displayProgress}/${q.target}</span>`; }
 
                 html += `
                     <div class="${idx < monthQuests.length - 1 ? 'border-b border-purple-100 pb-4' : ''}">
                         <div class="flex justify-between items-center mb-2">
-                            <div>
-                                <h4 class="text-xs font-black text-slate-700">${q.title}</h4>
-                                <span class="text-[9px] text-slate-500">${q.desc}</span>
-                            </div>
+                            <div><h4 class="text-xs font-black text-slate-700">${q.title}</h4><span class="text-[9px] text-slate-500">${q.desc}</span></div>
                             <div>${actionHtml}</div>
                         </div>
-                        <div class="w-full neu-pressed h-2 p-[1.5px]">
-                            <div class="bg-[var(--accent-grad)] h-full rounded-full transition-all duration-700" style="width: ${pct}%"></div>
-                        </div>
-                    </div>
-                `;
+                        <div class="w-full neu-pressed h-2 p-[1.5px]"><div class="bg-[var(--accent-grad)] h-full rounded-full transition-all duration-700" style="width: ${pct}%"></div></div>
+                    </div>`;
             });
-
             document.getElementById('monthly-quests-container').innerHTML = html;
         }
 
         window.claimMonthlyReward = function(claimedKey) {
-            vibratePhone([50, 100, 50]);
-            claimedMonthlyQuests.push(claimedKey);
-            localStorage.setItem('brideWeddingMonthlyClaimed', JSON.stringify(claimedMonthlyQuests));
-            tickets += 1;
-            localStorage.setItem('brideWeddingTickets', tickets);
-            
-            saveProfileToCloud(); // ☁️ อัปเดตตั๋วและเควสขึ้น Cloud
-            
+            vibratePhone([50, 100, 50]); claimedMonthlyQuests.push(claimedKey); localStorage.setItem('brideWeddingMonthlyClaimed', JSON.stringify(claimedMonthlyQuests)); tickets += 1; localStorage.setItem('brideWeddingTickets', tickets);
+            saveProfileToCloud(); // ☁️
             confetti({ particleCount: 150, spread: 100, origin: { y: 0.5 }, colors: ['#a855f7', '#c084fc', '#e9d5ff', '#ffffff'] }); 
-            renderMonthlyQuests(); updateTicketUI();
-            setTimeout(() => { showRewardModal(`เก่งมากค่ะเจ้าสาว!<br>คุณพิชิตภารกิจข้ามขีดจำกัดสำเร็จ<br>รับตั๋วชีทมีล <b>1</b> ใบ! 🎟️`); }, 500);
+            renderMonthlyQuests(); updateTicketUI(); setTimeout(() => { showRewardModal(`เก่งมากค่ะเจ้าสาว!<br>คุณพิชิตภารกิจข้ามขีดจำกัดสำเร็จ<br>รับตั๋วชีทมีล <b>1</b> ใบ! 🎟️`); }, 500);
         }
 
         function checkMilestonesAndCelebrate(weightInput) {
             const target = parseFloat(profile.targetWeight); const start = parseFloat(profile.startWeight); const current = parseFloat(weightInput);
             if (isNaN(current) || current <= 0) return;
-
-            let newlyClaimed = 0;
-            let m = Math.floor((start - 0.1) / 2) * 2; 
-            while (m >= target) { 
-                if (current <= m && !claimedMilestones.includes(m)) { newlyClaimed++; claimedMilestones.push(m); } m -= 2; 
-            }
+            let newlyClaimed = 0; let m = Math.floor((start - 0.1) / 2) * 2; 
+            while (m >= target) { if (current <= m && !claimedMilestones.includes(m)) { newlyClaimed++; claimedMilestones.push(m); } m -= 2; }
             if (current <= target && !claimedMilestones.includes(target)) { newlyClaimed++; claimedMilestones.push(target); }
 
             if (newlyClaimed > 0) {
-                tickets += newlyClaimed; 
-                localStorage.setItem('brideWeddingTickets', tickets); 
-                localStorage.setItem('brideWeddingClaimedMilestones', JSON.stringify(claimedMilestones));
-                
-                saveProfileToCloud(); // ☁️ อัปเดตตั๋วขึ้น Cloud
-
-                vibratePhone([100, 50, 100, 50, 200, 50, 200]); 
-                confetti({ particleCount: 300, spread: 100, origin: { y: 0.5 }, colors: ['#a855f7', '#fcd34d', '#ffffff'], zIndex: 9999 });
-                setTimeout(() => { 
-                    updateTicketUI();
-                    showRewardModal(`คุณลดน้ำหนักถึงเป้าหมายย่อยแล้ว!<br>ได้รับตั๋วชีทมีล <b>${newlyClaimed}</b> ใบ! 🍰`); 
-                }, 800);
+                tickets += newlyClaimed; localStorage.setItem('brideWeddingTickets', tickets); localStorage.setItem('brideWeddingClaimedMilestones', JSON.stringify(claimedMilestones));
+                saveProfileToCloud(); // ☁️
+                vibratePhone([100, 50, 100, 50, 200, 50, 200]); confetti({ particleCount: 300, spread: 100, origin: { y: 0.5 }, colors: ['#a855f7', '#fcd34d', '#ffffff'], zIndex: 9999 });
+                setTimeout(() => { updateTicketUI(); showRewardModal(`คุณลดน้ำหนักถึงเป้าหมายย่อยแล้ว!<br>ได้รับตั๋วชีทมีล <b>${newlyClaimed}</b> ใบ! 🍰`); }, 800);
             }
         }
 
         function useTicket() {
-            if (tickets <= 0) return; vibratePhone(20);
-            const modal = document.getElementById('ticketConfirmModal'); const card = document.getElementById('ticketConfirmCard');
+            if (tickets <= 0) return; vibratePhone(20); const modal = document.getElementById('ticketConfirmModal'); const card = document.getElementById('ticketConfirmCard');
             modal.classList.remove('hidden'); setTimeout(() => { card.classList.remove('scale-95', 'opacity-0'); card.classList.add('scale-100', 'opacity-100'); }, 10);
         }
 
@@ -1104,11 +942,8 @@
         function confirmUseTicket() {
             closeTicketModal();
             setTimeout(() => {
-                vibratePhone([100, 50, 200]); 
-                tickets -= 1; 
-                localStorage.setItem('brideWeddingTickets', tickets);
-                saveProfileToCloud(); // ☁️ อัปเดตหักตั๋วขึ้น Cloud
-
+                vibratePhone([100, 50, 200]); tickets -= 1; localStorage.setItem('brideWeddingTickets', tickets);
+                saveProfileToCloud(); // ☁️
                 const end = Date.now() + 1.5 * 1000; const colors = ['#a855f7', '#c084fc', '#ffffff'];
                 (function frame() { confetti({ particleCount: 5, angle: 60, spread: 55, origin: { x: 0 }, colors: colors }); confetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1 }, colors: colors }); if (Date.now() < end) requestAnimationFrame(frame); }());
                 updateTicketUI();
@@ -1116,8 +951,7 @@
         }
 
         function showRewardModal(message, title="ยินดีด้วยค่ะ!") {
-            document.getElementById('rewardTitle').innerText = title;
-            document.getElementById('rewardMessage').innerHTML = message;
+            document.getElementById('rewardTitle').innerText = title; document.getElementById('rewardMessage').innerHTML = message;
             const modal = document.getElementById('rewardModal'); const card = document.getElementById('rewardCard');
             modal.classList.remove('hidden'); setTimeout(() => { card.classList.remove('scale-95', 'opacity-0'); card.classList.add('scale-100', 'opacity-100'); }, 10);
         }
@@ -1130,12 +964,10 @@
         // --- 8. CHART RENDERING ---
         let weightChartInstance = null;
         function updateChart() {
-            const ctx = document.getElementById('weightChart').getContext('2d');
-            const sortedDates = Object.keys(logs).filter(d => logs[d].weight).sort();
+            const ctx = document.getElementById('weightChart').getContext('2d'); const sortedDates = Object.keys(logs).filter(d => logs[d].weight).sort();
             if (sortedDates.length === 0) { document.getElementById('chart-no-data').classList.remove('hidden'); if (weightChartInstance) weightChartInstance.destroy(); return; }
             document.getElementById('chart-no-data').classList.add('hidden');
             const labels = sortedDates.map(d => `${parseInt(d.split('-')[2])}/${parseInt(d.split('-')[1])}`); const data = sortedDates.map(d => logs[d].weight);
-
             if (weightChartInstance) weightChartInstance.destroy();
             weightChartInstance = new Chart(ctx, {
                 type: 'line', data: { labels: labels, datasets: [{ label: 'น้ำหนัก', data: data, borderColor: '#a855f7', backgroundColor: 'rgba(168, 85, 247, 0.15)', borderWidth: 3, pointBackgroundColor: '#fff', pointBorderColor: '#a855f7', pointBorderWidth: 2, pointRadius: 4, fill: true, tension: 0.4 }] },
@@ -1155,23 +987,12 @@
                 if(data.g1) dotsHtml += `<div class="status-dot dot-g1"></div>`; if(data.c1) dotsHtml += `<div class="status-dot dot-c1"></div>`;
                 if(data.c2) dotsHtml += `<div class="status-dot dot-c2"></div>`; if(data.c3) dotsHtml += `<div class="status-dot dot-c3"></div>`; dotsHtml += `</div>`;
                 let dayClass = "h-11 flex flex-col items-center justify-center text-xs font-black cursor-pointer rounded-xl transition relative active:scale-90 ";
-                
                 if (dStr === profile.weddingDate) { dayClass += "bg-gradient-to-br from-purple-400 to-[#a855f7] text-white shadow-[4px_4px_10px_rgba(168,85,247,0.3),-4px_-4px_10px_rgba(255,255,255,0.9)] "; } 
-                else if (dStr === realTodayStr) { dayClass += "neu-pressed text-[#a855f7] "; } 
-                else if (Object.keys(data).length > 0 && data.weight) { dayClass += "text-slate-800 neu-flat "; } 
-                else { dayClass += "text-slate-400 bg-transparent hover:neu-flat"; }
-
+                else if (dStr === realTodayStr) { dayClass += "neu-pressed text-[#a855f7] "; } else if (Object.keys(data).length > 0 && data.weight) { dayClass += "text-slate-800 neu-flat "; } else { dayClass += "text-slate-400 bg-transparent hover:neu-flat"; }
                 const dayDiv = document.createElement('div'); dayDiv.className = dayClass; dayDiv.onclick = () => { vibratePhone(20); openDayModal(i, currentCalMonth, dStr); }; dayDiv.innerHTML = `<span>${i}</span>${dotsHtml}`; grid.appendChild(dayDiv);
             }
         }
-        function changeMonth(dir) { 
-            vibratePhone(20); 
-            currentCalMonth += dir; 
-            if(currentCalMonth < 0) currentCalMonth = 0; 
-            if(currentCalMonth > 5) currentCalMonth = 5; 
-            renderCalendarMonth(); 
-            renderMonthlyQuests(); 
-        }
+        function changeMonth(dir) { vibratePhone(20); currentCalMonth += dir; if(currentCalMonth < 0) currentCalMonth = 0; if(currentCalMonth > 5) currentCalMonth = 5; renderCalendarMonth(); renderMonthlyQuests(); }
 
         function startCountdown() {
             if (masterCountdownInterval) clearInterval(masterCountdownInterval);
@@ -1185,20 +1006,13 @@
         }
 
         function updateTicketUI() {
-            const inv = document.getElementById('ticket-inventory'); 
-            const headerTicketBadge = document.getElementById('header-ticket-badge');
-            if (tickets > 0) { 
-                inv.classList.remove('hidden'); document.getElementById('ticket-count-display').innerText = `x${tickets}`; 
-                headerTicketBadge.classList.remove('hidden'); headerTicketBadge.classList.add('flex'); document.getElementById('header-ticket-count-text').innerText = tickets;
-            } else { 
-                inv.classList.add('hidden'); headerTicketBadge.classList.add('hidden'); headerTicketBadge.classList.remove('flex');
-            }
+            const inv = document.getElementById('ticket-inventory'); const headerTicketBadge = document.getElementById('header-ticket-badge');
+            if (tickets > 0) { inv.classList.remove('hidden'); document.getElementById('ticket-count-display').innerText = `x${tickets}`; headerTicketBadge.classList.remove('hidden'); headerTicketBadge.classList.add('flex'); document.getElementById('header-ticket-count-text').innerText = tickets; } else { inv.classList.add('hidden'); headerTicketBadge.classList.add('hidden'); headerTicketBadge.classList.remove('flex'); }
         }
 
         function refreshAll(isInitial = false) {
             const now = new Date(); realTodayStr = getFormattedDateString(now);
             if (isInitial && now.getFullYear() === 2026 && now.getMonth() >= 5 && now.getMonth() <= 10) currentCalMonth = now.getMonth() - 5;
-            
             renderCalendarMonth(); startCountdown(); 
             
             const startW = parseFloat(profile.startWeight); const targetW = parseFloat(profile.targetWeight); let latestW = startW;
@@ -1226,13 +1040,8 @@
 
             const tData = logs[realTodayStr] || {};
             document.getElementById('today-date-text').innerText = `${now.getDate()} ${thaiMonthNames[now.getMonth()]} ${String(now.getFullYear() + 543).slice(-2)}`;
-            
-            const recPlan = getRecommendedWorkout(currentCalMonth, now.getDay());
-            recommendedWkType = recPlan.typeId;
-            recommendedWkLvl = recPlan.level; 
-            
-            document.getElementById('coach-rec-title').innerText = recPlan.displayName;
-            document.getElementById('today-workout-desc').innerText = `วันนี้โค้ชแนะนำ: ${recPlan.displayName}`;
+            const recPlan = getRecommendedWorkout(currentCalMonth, now.getDay()); recommendedWkType = recPlan.typeId; recommendedWkLvl = recPlan.level; 
+            document.getElementById('coach-rec-title').innerText = recPlan.displayName; document.getElementById('today-workout-desc').innerText = `วันนี้โค้ชแนะนำ: ${recPlan.displayName}`;
             if (recPlan.typeId === 'REST') document.getElementById('today-check-workout').disabled = false;
             
             document.getElementById('today-check-workout').checked = !!tData.g1; document.getElementById('today-check-if').checked = !!tData.c1; document.getElementById('today-check-carbs').checked = !!tData.c2; document.getElementById('today-check-water').checked = !!tData.c3; document.getElementById('today-weight-input').value = tData.weight || "";
@@ -1240,15 +1049,7 @@
             const wDateObj = parseDateStr(profile.weddingDate); document.getElementById('wedding-date-label').innerText = `${wDateObj.getDate()} ${thaiMonthNames[wDateObj.getMonth()]} ${wDateObj.getFullYear() + 543} 💍`;
 
             updateChart(); updateTicketUI(); renderMonthlyQuests(); 
-            
-            if(isInitial) {
-                if(recommendedWkType !== 'REST') {
-                    selectWorkout(recommendedWkType);
-                    setTimeout(() => { selectLevel(recommendedWkLvl); }, 50);
-                } else {
-                    selectWorkout('G1'); selectLevel(0);
-                }
-            }
+            if(isInitial) { if(recommendedWkType !== 'REST') { selectWorkout(recommendedWkType); setTimeout(() => { selectLevel(recommendedWkLvl); }, 50); } else { selectWorkout('G1'); selectLevel(0); } }
         }
 
         // --- 10. INPUT & SAVING ---
@@ -1260,13 +1061,9 @@
             }
         }
         function toggleTodayTask(k, event) { 
-            if (k === 'g1' && recommendedWkType !== 'REST') {
-                event.preventDefault(); event.target.checked = !event.target.checked;
-                switchView('timer'); return;
-            }
+            if (k === 'g1' && recommendedWkType !== 'REST') { event.preventDefault(); event.target.checked = !event.target.checked; switchView('timer'); return; }
             applyCheckboxPopAndFloat(event); 
-            if(!logs[realTodayStr]) logs[realTodayStr] = {}; 
-            logs[realTodayStr][k] = event.target.checked; 
+            if(!logs[realTodayStr]) logs[realTodayStr] = {}; logs[realTodayStr][k] = event.target.checked; 
             localStorage.setItem('brideWeddingLogs', JSON.stringify(logs)); 
             saveLogToCloud(realTodayStr); // ☁️
             refreshAll(false); 
@@ -1303,9 +1100,7 @@
             vibratePhone([30,50,30]);
             profile.startWeight = parseFloat(document.getElementById('set-start-weight').value); profile.targetWeight = parseFloat(document.getElementById('set-target-weight').value); profile.weddingDate = document.getElementById('set-wedding-date').value;
             localStorage.setItem('brideWeddingProfile', JSON.stringify(profile)); 
-            
-            saveProfileToCloud(); // ☁️ อัปเดตการตั้งค่าขึ้น Cloud
-
+            saveProfileToCloud(); // ☁️
             refreshAll(true);
             const oriText = btnElement.innerText; btnElement.innerText = "✅ บันทึกเรียบร้อย"; btnElement.classList.add('bg-emerald-500', 'pointer-events-none');
             setTimeout(() => { btnElement.innerText = oriText; btnElement.classList.remove('bg-emerald-500', 'pointer-events-none'); }, 1500);
@@ -1326,52 +1121,51 @@
             vibratePhone(20);
             ['dashboard','calendar','timer','settings','guide'].forEach(id => {
                 document.getElementById(`view-${id}`).classList.add('hidden'); const btn = document.getElementById(`nav-${id}`); 
-                if (btn) {
-                    btn.classList.remove('text-[#a855f7]'); btn.classList.add('text-slate-400');
-                    btn.querySelector('span:first-child').classList.add('opacity-60'); btn.querySelector('span:first-child').classList.remove('drop-shadow-md');
-                }
+                if (btn) { btn.classList.remove('text-[#a855f7]'); btn.classList.add('text-slate-400'); btn.querySelector('span:first-child').classList.add('opacity-60'); btn.querySelector('span:first-child').classList.remove('drop-shadow-md'); }
             });
             document.getElementById(`view-${v}`).classList.remove('hidden'); const activeBtn = document.getElementById(`nav-${v}`); 
-            if (activeBtn) {
-                activeBtn.classList.remove('text-slate-400'); activeBtn.classList.add('text-[#a855f7]');
-                activeBtn.querySelector('span:first-child').classList.remove('opacity-60'); activeBtn.querySelector('span:first-child').classList.add('drop-shadow-md');
-            }
+            if (activeBtn) { activeBtn.classList.remove('text-slate-400'); activeBtn.classList.add('text-[#a855f7]'); activeBtn.querySelector('span:first-child').classList.remove('opacity-60'); activeBtn.querySelector('span:first-child').classList.add('drop-shadow-md'); }
             window.scrollTo({ top: 0, behavior: 'smooth' }); 
         }
 
-        // --- APP INITIALIZATION ---
-        window.onload = () => {
-            refreshAll(true);
+        // --- APP INITIALIZATION (FIXED SYNC) ---
+        window.onload = async () => {
+            refreshAll(true); // โหลดข้อมูลในเครื่องขึ้นมาก่อนทันที (ไม่ให้หน้าเว็บหมุนค้าง)
             
-            // ☁️ วิ่งไปขอข้อมูลล่าสุดจาก Google Sheets
-            fetch(API_URL)
-                .then(res => res.json())
-                .then(data => {
-                    let shouldRefresh = false;
+            try {
+                // วิ่งไปขอข้อมูลจาก Google Sheets
+                const res = await fetch(API_URL);
+                const data = await res.json();
+                let hasUpdate = false;
+                
+                // ถ้ามีข้อมูล Logs จากบนคลาวด์ ให้นำมาผสาน
+                if(data.logs && Object.keys(data.logs).length > 0) {
+                    logs = data.logs; 
+                    localStorage.setItem('brideWeddingLogs', JSON.stringify(logs));
+                    hasUpdate = true;
+                }
+                
+                // ถ้ามีข้อมูล Profile จากบนคลาวด์ ให้นำมาผสาน
+                if(data.profile) {
+                    if(data.profile.profile) profile = data.profile.profile;
+                    if(data.profile.tickets !== undefined) tickets = data.profile.tickets;
+                    if(data.profile.claimedMilestones) claimedMilestones = data.profile.claimedMilestones;
+                    if(data.profile.claimedMonthlyQuests) claimedMonthlyQuests = data.profile.claimedMonthlyQuests;
                     
-                    if(data.logs && Object.keys(data.logs).length > 0) {
-                        logs = data.logs; 
-                        localStorage.setItem('brideWeddingLogs', JSON.stringify(logs));
-                        shouldRefresh = true;
-                    }
-                    if(data.profile) {
-                        if(data.profile.profile) profile = data.profile.profile;
-                        if(data.profile.tickets !== undefined) tickets = data.profile.tickets;
-                        if(data.profile.claimedMilestones) claimedMilestones = data.profile.claimedMilestones;
-                        if(data.profile.claimedMonthlyQuests) claimedMonthlyQuests = data.profile.claimedMonthlyQuests;
-                        
-                        localStorage.setItem('brideWeddingProfile', JSON.stringify(profile));
-                        localStorage.setItem('brideWeddingTickets', tickets);
-                        localStorage.setItem('brideWeddingClaimedMilestones', JSON.stringify(claimedMilestones));
-                        localStorage.setItem('brideWeddingMonthlyClaimed', JSON.stringify(claimedMonthlyQuests));
-                        shouldRefresh = true;
-                    }
+                    localStorage.setItem('brideWeddingProfile', JSON.stringify(profile));
+                    localStorage.setItem('brideWeddingTickets', tickets);
+                    localStorage.setItem('brideWeddingClaimedMilestones', JSON.stringify(claimedMilestones));
+                    localStorage.setItem('brideWeddingMonthlyClaimed', JSON.stringify(claimedMonthlyQuests));
+                    hasUpdate = true;
+                }
 
-                    if(shouldRefresh) {
-                        refreshAll(false); 
-                    }
-                })
-                .catch(e => console.log('Load from cloud failed (Offline Mode)', e));
+                // ถ้ามีการดึงข้อมูลใหม่ลงมา ค่อยรีเฟรชหน้าจออีกครั้ง
+                if(hasUpdate) {
+                    refreshAll(false); 
+                }
+            } catch(e) {
+                console.log('ทำงานในโหมด Offline (ไม่สามารถดึงข้อมูลจาก Cloud ได้)', e);
+            }
         };
     </script>
 </body>
