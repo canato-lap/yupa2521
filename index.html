@@ -1,0 +1,1378 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ปฏิทินลดน้ำหนักฉบับเจ้าสาว - Yupawan Tracker</title>
+    
+    <!-- External Libraries -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- 1. CSS VARIABLES (Pastel Neumorphism Theme) --- */
+        :root {
+            --bg-color: #ffffff; /* white */
+            --shadow-light: #ffffff; 
+            --shadow-dark: #e9d5ff; /* purple-200 */
+            --accent-purple: #a855f7; /* purple-500 */
+            --accent-grad: linear-gradient(135deg, #c084fc, #9333ea);
+            --text-main: #475569;
+            --text-muted: #94a3b8;
+        }
+
+        /* --- 2. BASE RESET & APP SHELL --- */
+        html, body {
+            width: 100%; 
+            min-height: 100vh;
+            margin: 0; 
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            -webkit-tap-highlight-color: transparent; 
+        }
+        body { font-family: 'Sarabun', 'Inter', sans-serif; }
+        ::-webkit-scrollbar { width: 0px; background: transparent; } 
+
+        /* --- 3. NEUMORPHIC UTILITIES --- */
+        .neu-flat {
+            background: var(--bg-color);
+            box-shadow: 8px 8px 16px var(--shadow-dark), -8px -8px 16px var(--shadow-light);
+            border-radius: 20px;
+        }
+        .neu-pressed {
+            background: var(--bg-color);
+            box-shadow: inset 6px 6px 12px var(--shadow-dark), inset -6px -6px 12px var(--shadow-light);
+            border-radius: 15px;
+        }
+        .neu-btn {
+            background: var(--bg-color);
+            box-shadow: 6px 6px 12px var(--shadow-dark), -6px -6px 12px var(--shadow-light);
+            border-radius: 15px;
+            transition: all 0.2s ease;
+        }
+        .neu-btn:active {
+            box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light);
+        }
+        .neu-btn-primary {
+            background: var(--accent-grad);
+            box-shadow: 6px 6px 15px rgba(168, 85, 247, 0.4);
+            color: white;
+            border-radius: 15px;
+            transition: all 0.2s ease;
+        }
+        .neu-btn-primary:active { transform: scale(0.96); }
+        .neu-hero {
+            background: var(--accent-grad);
+            box-shadow: 8px 8px 20px rgba(168, 85, 247, 0.3), -8px -8px 16px var(--shadow-light);
+            border-radius: 24px;
+            color: white;
+        }
+        .neu-floating {
+            background: var(--bg-color);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+            border-radius: 24px;
+        }
+
+        /* --- 4. CUSTOM COMPONENTS & ANIMATIONS --- */
+        .neu-checkbox {
+            appearance: none;
+            width: 24px; height: 24px;
+            background: var(--bg-color);
+            box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light);
+            border-radius: 8px;
+            outline: none; position: relative; cursor: pointer; transition: all 0.3s;
+        }
+        .neu-checkbox:checked {
+            background: var(--accent-purple);
+            box-shadow: inset 2px 2px 4px rgba(0,0,0,0.15);
+        }
+        .neu-checkbox:checked::after {
+            content: '✔'; position: absolute; color: white;
+            font-size: 14px; top: 50%; left: 50%; transform: translate(-50%, -50%);
+        }
+
+        .status-dot { width: 6px; height: 6px; border-radius: 50%; }
+        .dot-g1 { background-color: #a855f7; box-shadow: 0 0 5px rgba(168, 85, 247, 0.5); } 
+        .dot-c1 { background-color: #f59e0b; box-shadow: 0 0 5px rgba(245, 158, 11, 0.5); } 
+        .dot-c2 { background-color: #10b981; box-shadow: 0 0 5px rgba(16, 185, 129, 0.5); } 
+        .dot-c3 { background-color: #0ea5e9; box-shadow: 0 0 5px rgba(14, 165, 233, 0.5); } 
+
+        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0) scale(0.8); } 100% { opacity: 0; transform: translateY(-40px) scale(1.2); } }
+        .floating-text { position: fixed; pointer-events: none; z-index: 9999; animation: floatUp 1s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; font-weight: 800; text-shadow: 0 2px 4px rgba(255,255,255,0.8); }
+        @keyframes pulse-ring { 0% { transform: scale(0.95); opacity: 0.5; } 50% { transform: scale(1.05); opacity: 0.8; } 100% { transform: scale(0.95); opacity: 0.5; } }
+        .pulse-effect { animation: pulse-ring 2s infinite ease-in-out; }
+        @keyframes pop { 0% { transform: scale(1); } 50% { transform: scale(1.3); } 100% { transform: scale(1); } }
+        .animate-pop { animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+    </style>
+</head>
+<body class="select-none flex justify-center">
+
+    <!-- APP WRAPPER -->
+    <div class="w-full max-w-md bg-[var(--bg-color)] min-h-screen relative shadow-2xl pt-[80px] pb-[90px]">
+        
+        <!-- HEADER (FIXED) -->
+        <header class="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-md z-50 p-5 flex items-center justify-between" style="background-color: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px);">
+            <div class="flex items-center gap-3">
+                <div onclick="switchView('settings')" class="w-10 h-10 rounded-full neu-flat flex items-center justify-center text-xl cursor-pointer active:scale-95 transition">👰🏻‍♀️</div>
+                <div>
+                    <h1 class="text-sm font-extrabold tracking-wide text-slate-800">Yupawan Tracker</h1>
+                    <p class="text-[10px] text-[#a855f7] font-medium">ปฏิทินลดน้ำหนักฉบับเจ้าสาว</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <div id="header-ticket-badge" class="neu-pressed px-3 py-1.5 rounded-full flex items-center gap-1 text-[10px] font-bold text-amber-500 hidden">
+                    🎟️ x<span id="header-ticket-count-text">0</span>
+                </div>
+                <div class="neu-pressed px-3 py-1.5 rounded-full flex items-center gap-1 text-[10px] font-bold text-[#a855f7]">
+                    เป้าหมาย <span id="header-target-weight-text">50</span> กก.
+                </div>
+            </div>
+        </header>
+
+        <!-- MAIN SCROLLABLE CONTENT -->
+        <main class="p-5 space-y-7">
+            
+            <!-- ====== VIEW: DASHBOARD ====== -->
+            <section id="view-dashboard" class="space-y-7">
+                
+                <!-- Countdown Hero Card -->
+                <div class="neu-hero p-6 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -mr-10 -mt-10"></div>
+                    <div class="absolute bottom-0 left-0 w-24 h-24 bg-black opacity-10 rounded-full -ml-8 -mb-8"></div>
+                    
+                    <div class="flex items-center justify-between mb-4 relative z-10">
+                        <span class="text-xs font-medium text-purple-100 uppercase tracking-widest">Countdown</span>
+                        <span class="text-[10px] font-bold bg-white text-[#a855f7] px-2.5 py-1 rounded-full shadow-md" id="wedding-date-label">โหลด...</span>
+                    </div>
+                    <div class="grid grid-cols-4 gap-3 text-center relative z-10" id="countdown-grid">
+                        <div><span class="block text-3xl font-black" id="cd-days">00</span><span class="text-[9px] text-purple-100 uppercase font-medium">วัน</span></div>
+                        <div><span class="block text-3xl font-black" id="cd-hours">00</span><span class="text-[9px] text-purple-100 uppercase font-medium">ชม.</span></div>
+                        <div><span class="block text-3xl font-black" id="cd-mins">00</span><span class="text-[9px] text-purple-100 uppercase font-medium">นาที</span></div>
+                        <div><span class="block text-3xl font-black" id="cd-secs">00</span><span class="text-[9px] text-purple-100 uppercase font-medium">วิ</span></div>
+                    </div>
+                </div>
+
+                <!-- Ticket Inventory Box -->
+                <div id="ticket-inventory" class="neu-flat p-4 flex justify-between items-center hidden border-l-4 border-[#a855f7]">
+                    <div>
+                        <span class="text-xs font-bold text-slate-800 flex items-center gap-1.5"><span class="text-lg">🎟️</span> ตั๋วชีทมีลของคุณ</span>
+                        <span class="text-[9px] text-slate-500 block mt-0.5">ใช้เพื่อกินของอร่อย 1 มื้อแบบไม่รู้สึกผิด</span>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <span class="text-2xl font-black text-[#a855f7]" id="ticket-count-display">x0</span>
+                        <button onclick="useTicket()" class="neu-btn-primary px-4 py-2 text-xs font-bold">กดใช้</button>
+                    </div>
+                </div>
+
+                <!-- Metrics -->
+                <div class="grid grid-cols-2 gap-5">
+                    <div class="neu-flat p-5 flex flex-col items-center justify-center text-center">
+                        <div class="w-8 h-8 rounded-full neu-pressed flex items-center justify-center mb-2">
+                            <span class="w-3 h-3 rounded-full bg-slate-400"></span>
+                        </div>
+                        <span class="text-[10px] text-slate-500 font-medium">น้ำหนักเริ่มต้น</span>
+                        <div class="mt-1"><span class="text-2xl font-black text-slate-800" id="stat-start-weight">0.0</span> <span class="text-[10px] text-slate-500">กก.</span></div>
+                    </div>
+                    <div class="neu-flat p-5 flex flex-col items-center justify-center text-center">
+                        <div class="w-8 h-8 rounded-full neu-pressed flex items-center justify-center mb-2">
+                            <span class="w-3 h-3 rounded-full bg-[#a855f7] shadow-[0_0_8px_#a855f7]"></span>
+                        </div>
+                        <span class="text-[10px] text-slate-500 font-medium">น้ำหนักเป้าหมาย</span>
+                        <div class="mt-1"><span class="text-2xl font-black text-[#a855f7]" id="stat-target-weight">0.0</span> <span class="text-[10px] text-slate-500">กก.</span></div>
+                    </div>
+                </div>
+
+                <!-- Sub-goal Card -->
+                <div class="neu-flat p-6 space-y-4 border-l-4 border-[#a855f7]">
+                    <div class="flex items-center justify-between">
+                        <h3 class="font-bold text-slate-800 text-sm flex items-center gap-1.5">🚩 เป้าหมายย่อย</h3>
+                        <span class="text-[10px] font-bold text-purple-600 bg-purple-100 px-2.5 py-1 rounded-full shadow-sm" id="subgoal-badge">--</span>
+                    </div>
+                    <div class="flex items-end justify-between">
+                        <div>
+                            <span class="text-[10px] font-bold text-slate-400 uppercase block mb-1">ด่านต่อไปต้องชน</span>
+                            <h3 class="text-2xl font-black text-[#a855f7]" id="subgoal-target">-- กก.</h3>
+                        </div>
+                        <div class="text-right pb-1" id="subgoal-current-text">
+                            <span class="text-xs font-black text-slate-800">--</span>
+                            <span class="text-[10px] text-slate-500">/ -- กก.</span>
+                        </div>
+                    </div>
+                    <div class="w-full neu-pressed h-3 p-0.5 relative">
+                        <div id="subgoal-progress-bar" class="bg-gradient-to-r from-purple-300 to-[#a855f7] h-full rounded-full transition-all duration-700 w-0"></div>
+                    </div>
+                </div>
+
+                <!-- Progress & Chart Section -->
+                <div class="neu-flat p-6 space-y-5">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <span class="text-[10px] font-bold text-slate-400 uppercase">ลดไปแล้ว</span>
+                            <h3 class="text-xl font-black text-[#a855f7]" id="stat-total-lost">0.0 กก.</h3>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-[10px] font-bold text-slate-400 uppercase">เหลืออีก</span>
+                            <h3 class="text-xl font-black text-amber-500" id="stat-remaining-weight">0.0 กก.</h3>
+                        </div>
+                    </div>
+                    
+                    <div class="w-full neu-pressed h-4 p-1">
+                        <div id="progress-bar-fill" class="bg-[var(--accent-grad)] h-full rounded-full transition-all duration-1000 shadow-md" style="width: 0%"></div>
+                    </div>
+
+                    <div class="pt-4 border-t border-purple-200">
+                        <span class="text-xs font-bold text-slate-700 mb-3 block">📈 สถิติน้ำหนัก</span>
+                        <div class="h-32 w-full relative flex items-center justify-center">
+                            <span id="chart-no-data" class="text-xs text-slate-400 hidden absolute z-10 font-medium">ยังไม่มีข้อมูลน้ำหนัก</span>
+                            <canvas id="weightChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Today's Checklist Section -->
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between px-1">
+                        <h3 class="font-bold text-slate-800 text-sm">🔥 ภารกิจวันนี้</h3>
+                        <span class="text-[10px] text-slate-500 font-bold bg-white shadow-sm px-3 py-1.5 rounded-full" id="today-date-text">โหลด...</span>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <label class="flex items-center gap-4 p-4 neu-flat cursor-pointer active:scale-[0.98] transition">
+                            <input type="checkbox" id="today-check-workout" class="neu-checkbox" onchange="toggleTodayTask('g1', event)">
+                            <div class="flex-1">
+                                <div class="flex justify-between items-center">
+                                    <span class="block text-[10px] text-[#a855f7] font-black uppercase tracking-wide">ออกกำลังกาย</span>
+                                    <button onclick="switchView('timer'); event.preventDefault();" class="text-[9px] bg-[#a855f7] text-white px-2 py-0.5 rounded-full shadow-sm">เปิดโค้ช ⏱️</button>
+                                </div>
+                                <p class="text-[11px] font-bold text-slate-700 mt-0.5 leading-snug" id="today-workout-desc">โหลด...</p>
+                            </div>
+                        </label>
+                        <label class="flex items-center gap-4 p-4 neu-flat cursor-pointer active:scale-[0.98] transition">
+                            <input type="checkbox" id="today-check-if" class="neu-checkbox" onchange="toggleTodayTask('c1', event)">
+                            <span class="text-xs text-slate-700 font-bold">ทำ IF 16/8 สำเร็จ</span>
+                        </label>
+                        <label class="flex items-center gap-4 p-4 neu-flat cursor-pointer active:scale-[0.98] transition">
+                            <input type="checkbox" id="today-check-carbs" class="neu-checkbox" onchange="toggleTodayTask('c2', event)">
+                            <span class="text-xs text-slate-700 font-bold">ลดหวาน 25-50% / งดของหวาน</span>
+                        </label>
+                        <label class="flex items-center gap-4 p-4 neu-flat cursor-pointer active:scale-[0.98] transition">
+                            <input type="checkbox" id="today-check-water" class="neu-checkbox" onchange="toggleTodayTask('c3', event)">
+                            <span class="text-xs text-slate-700 font-bold">ดื่มน้ำเปล่า 2.5 ลิตร</span>
+                        </label>
+                    </div>
+
+                    <div class="pt-2 flex gap-3">
+                        <div class="neu-pressed flex-grow flex items-center px-4">
+                            <input type="number" id="today-weight-input" step="0.1" placeholder="ระบุน้ำหนัก (กก.)" class="w-full bg-transparent text-slate-800 text-sm font-bold text-center focus:outline-none py-3">
+                        </div>
+                        <button id="btn-save-weight" onclick="saveTodayWeight(this)" class="neu-btn-primary px-6 font-bold text-sm">บันทึก</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ====== VIEW: CALENDAR ====== -->
+            <section id="view-calendar" class="space-y-6 hidden">
+                <div class="neu-flat p-4 flex items-center justify-between">
+                    <button onclick="changeMonth(-1)" class="neu-btn w-10 h-10 flex items-center justify-center text-slate-600 font-bold">&lt;</button>
+                    <div class="text-center">
+                        <span id="calendar-month-name" class="text-sm font-black text-slate-800 block">มิถุนายน 69</span>
+                        <span class="text-[9px] font-bold text-[#a855f7] uppercase tracking-widest">Calendar</span>
+                    </div>
+                    <button onclick="changeMonth(1)" class="neu-btn w-10 h-10 flex items-center justify-center text-slate-600 font-bold">&gt;</button>
+                </div>
+
+                <div class="neu-pressed p-5 text-center">
+                    <span class="text-[10px] font-black text-[#a855f7] uppercase tracking-widest">Strategy</span>
+                    <h3 id="cal-strategy-title" class="text-sm font-bold text-slate-800 mt-1 mb-1">เดือนที่ 1: ปรับสภาพและสร้างวินัย</h3>
+                    <p id="cal-strategy-desc" class="text-xs text-slate-500 font-medium">เริ่มต้นเบาๆ ไม่หักโหม</p>
+                </div>
+
+                <div class="neu-flat p-5">
+                    <div class="grid grid-cols-7 gap-1 text-center text-[10px] font-black text-slate-400 mb-4">
+                        <span>อา</span><span>จ</span><span>อ</span><span>พ</span><span>พฤ</span><span>ศ</span><span>ส</span>
+                    </div>
+                    <div id="calendar-grid" class="grid grid-cols-7 gap-y-3 gap-x-2"></div>
+                    <div class="mt-6 flex flex-wrap justify-center gap-x-4 gap-y-2 text-[10px] text-slate-600 font-bold border-t border-purple-200 pt-5">
+                        <div class="flex items-center gap-1.5"><div class="status-dot dot-g1"></div>ออกกำลัง</div>
+                        <div class="flex items-center gap-1.5"><div class="status-dot dot-c1"></div>IF</div>
+                        <div class="flex items-center gap-1.5"><div class="status-dot dot-c2"></div>คุมหวาน</div>
+                        <div class="flex items-center gap-1.5"><div class="status-dot dot-c3"></div>น้ำ</div>
+                    </div>
+                </div>
+
+                <!-- 🎯 Monthly Quests Section -->
+                <div class="neu-flat p-6">
+                    <div class="flex justify-between items-center mb-5">
+                        <h3 class="font-bold text-slate-800 text-sm flex items-center gap-1.5">🎯 ภารกิจเดือนนี้</h3>
+                        <span class="text-[9px] font-bold text-purple-600 bg-purple-100 px-3 py-1 rounded-full shadow-sm" id="quest-month-badge">โหลด...</span>
+                    </div>
+                    
+                    <div id="monthly-quests-container" class="space-y-4">
+                        <!-- รายการภารกิจจะถูก Gen ด้วย JavaScript ตรงนี้ -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- ====== VIEW: TIMER (WORKOUT COACH) ====== -->
+            <section id="view-timer" class="space-y-6 hidden">
+                
+                <!-- แบนเนอร์แนะนำการออกกำลังกายรายวัน -->
+                <div class="neu-pressed p-4 border-l-4 border-[#a855f7]">
+                    <span class="text-[10px] font-bold text-[#a855f7] uppercase block mb-1">🌟 โค้ชแนะนำสำหรับวันนี้</span>
+                    <h4 class="text-sm font-black text-slate-800" id="coach-rec-title">โหลด...</h4>
+                    <button onclick="setRecommendedWorkout()" class="mt-2 text-[10px] bg-white text-[#a855f7] font-bold px-3 py-1.5 rounded-full shadow-sm active:scale-95 transition">
+                        ตั้งค่าตามที่โค้ชแนะนำ 👇
+                    </button>
+                </div>
+
+                <!-- การตั้งค่าโปรแกรมฝึกซ้อม -->
+                <div class="neu-flat p-5 space-y-4">
+                    <div>
+                        <span class="text-[10px] font-bold text-slate-400 uppercase mb-2 block">1. เลือกกลุ่มท่าออกกำลังกาย</span>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="selectWorkout('G1')" id="btn-wk-G1" class="neu-pressed text-[#a855f7] py-2.5 text-xs font-bold rounded-xl transition">🔥 กลุ่ม 1 (เบิร์น)</button>
+                            <button onclick="selectWorkout('G2')" id="btn-wk-G2" class="neu-btn text-slate-500 py-2.5 text-xs font-bold rounded-xl transition">🍑 กลุ่ม 2 (ขา/สะโพก)</button>
+                            <button onclick="selectWorkout('G3')" id="btn-wk-G3" class="neu-btn text-slate-500 py-2.5 text-xs font-bold rounded-xl transition">🧘‍♀️ กลุ่ม 3 (หน้าท้อง)</button>
+                            <button onclick="selectWorkout('RANDOM')" id="btn-wk-RANDOM" class="neu-btn text-slate-500 py-2.5 text-xs font-bold rounded-xl transition">🎲 สุ่ม 4 ท่า (ศุกร์)</button>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="text-[10px] font-bold text-slate-400 uppercase mb-2 block">2. เลือกระดับความโหด (รอบ)</span>
+                        <div class="grid grid-cols-4 gap-2">
+                            <button onclick="selectLevel(0)" id="btn-lvl-0" class="neu-btn text-slate-500 py-2 text-[11px] font-bold rounded-xl transition flex flex-col items-center"><span>เบาๆ</span><span class="text-[9px] font-medium opacity-70">2 รอบ</span></button>
+                            <button onclick="selectLevel(1)" id="btn-lvl-1" class="neu-pressed text-[#a855f7] py-2 text-[11px] font-bold rounded-xl transition flex flex-col items-center"><span>Lv.1</span><span class="text-[9px] font-medium opacity-70">4 รอบ</span></button>
+                            <button onclick="selectLevel(2)" id="btn-lvl-2" class="neu-btn text-slate-500 py-2 text-[11px] font-bold rounded-xl transition flex flex-col items-center"><span>Lv.2</span><span class="text-[9px] font-medium opacity-70">6 รอบ</span></button>
+                            <button onclick="selectLevel(3)" id="btn-lvl-3" class="neu-btn text-slate-500 py-2 text-[11px] font-bold rounded-xl transition flex flex-col items-center"><span>Lv.3</span><span class="text-[9px] font-medium opacity-70">8 รอบ</span></button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- หน้าปัดนาฬิกาอัจฉริยะ -->
+                <div class="neu-flat p-6 flex flex-col items-center justify-center py-10">
+                    
+                    <!-- โครงสร้างหน้าปัดกลม -->
+                    <div class="relative w-64 h-64 flex items-center justify-center mb-6">
+                        <div class="absolute inset-0 rounded-full neu-flat"></div>
+                        <div class="absolute inset-3 rounded-full neu-pressed"></div>
+                        
+                        <!-- เส้นวงแหวนความคืบหน้า (SVG) -->
+                        <svg class="absolute inset-0 w-full h-full transform -rotate-90 pointer-events-none">
+                            <circle cx="128" cy="128" r="116" stroke="transparent" stroke-width="8" fill="none"></circle>
+                            <circle id="timer-progress-svg" cx="128" cy="128" r="116" stroke="currentColor" stroke-width="8" fill="none" stroke-dasharray="728.8" stroke-dashoffset="0" class="text-[#a855f7] transition-all duration-1000 linear"></circle>
+                        </svg>
+                        
+                        <!-- ข้อมูลเวลาด้านใน -->
+                        <div class="z-10 text-center flex flex-col items-center justify-center w-full px-4">
+                            <!-- เวลาทั้งหมด -->
+                            <div class="text-[10px] font-bold text-slate-400 mb-1 tracking-wider uppercase flex items-center gap-1">
+                                ⏳ รวม <span id="timer-total-display">00:00</span>
+                            </div>
+                            <!-- เวลาช่วงปัจจุบัน -->
+                            <span id="timer-phase-display" class="block text-5xl font-mono font-black text-slate-800 tracking-tight my-1" style="text-shadow: 2px 2px 4px rgba(255,255,255,0.8);">00:00</span>
+                            <!-- ชื่อท่าปัจจุบัน -->
+                            <span id="timer-phase-name" class="text-[11px] font-extrabold text-[#a855f7] mt-2 block px-2 leading-tight">เลือกโปรแกรมเพื่อเริ่ม</span>
+                        </div>
+                    </div>
+
+                    <!-- ปุ่มควบคุม -->
+                    <div class="flex gap-4 w-full px-2">
+                        <button id="btn-timer-action" onclick="toggleSmartTimer()" class="neu-btn-primary flex-grow py-4 text-sm font-bold tracking-widest">START</button>
+                        <button onclick="resetSmartTimer()" class="neu-btn text-slate-600 px-6 py-4 text-sm font-bold tracking-widest">RESET</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ====== VIEW: SETTINGS ====== -->
+            <section id="view-settings" class="space-y-6 hidden">
+                <div class="neu-flat p-6 space-y-5">
+                    <h3 class="font-black text-slate-800 text-sm flex items-center gap-2"><span class="text-xl">⚙️</span> ตั้งค่าเป้าหมาย</h3>
+                    <div class="grid grid-cols-2 gap-4 text-xs font-bold text-slate-600">
+                        <div>
+                            <label class="block mb-2 ml-1">น้ำหนักเริ่ม (กก.)</label>
+                            <div class="neu-pressed p-1"><input type="number" id="set-start-weight" step="0.1" class="w-full bg-transparent p-2 text-slate-800 text-center focus:outline-none"></div>
+                        </div>
+                        <div>
+                            <label class="block mb-2 ml-1">เป้าหมาย (กก.)</label>
+                            <div class="neu-pressed p-1"><input type="number" id="set-target-weight" step="0.1" class="w-full bg-transparent p-2 text-[#a855f7] text-center focus:outline-none"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-2 ml-1">วันแต่งงาน</label>
+                        <div class="neu-pressed p-1"><input type="date" id="set-wedding-date" class="w-full bg-transparent p-2 text-slate-800 focus:outline-none"></div>
+                    </div>
+                    <div class="pt-2">
+                        <button onclick="saveProfileSettings(this)" class="neu-btn-primary w-full py-3.5 text-sm font-bold">บันทึกการตั้งค่า</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ====== VIEW: GUIDE ====== -->
+            <section id="view-guide" class="space-y-6 hidden">
+                <div class="neu-flat p-6 space-y-6">
+                    <div class="text-center pb-4 border-b border-purple-100">
+                        <h2 class="text-lg font-black text-[#a855f7] mb-1">📖 คู่มือออกกำลังกายฉบับเจ้าสาว</h2>
+                        <p class="text-xs font-medium text-slate-500">สำหรับทำจันทร์-ศุกร์ (ใช้เวลาประมาณ 30-40 นาที)</p>
+                    </div>
+
+                    <!-- โครงสร้างการออกกำลังกาย -->
+                    <div class="space-y-3">
+                        <h3 class="font-bold text-slate-800 text-sm flex items-center gap-1.5">⏱️ โครงสร้างการออกกำลังกาย</h3>
+                        <div class="neu-pressed p-4 space-y-3">
+                            <div class="flex items-start gap-3">
+                                <div class="w-6 h-6 rounded-full bg-purple-100 text-[#a855f7] flex items-center justify-center text-xs font-bold shrink-0">1</div>
+                                <div><span class="text-xs font-bold text-slate-700">Warm-up:</span> <span class="text-xs text-slate-500">ย่ำเท้าอยู่กับที่ 3 นาที (ก่อนเริ่ม)</span></div>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <div class="w-6 h-6 rounded-full bg-purple-100 text-[#a855f7] flex items-center justify-center text-xs font-bold shrink-0">2</div>
+                                <div><span class="text-xs font-bold text-slate-700">ช่วงหลัก:</span> <span class="text-xs text-slate-500">ทำท่าในกลุ่มที่เลือกให้ครบ 4 รอบ <br>(พักระหว่างรอบ 1 นาที)</span></div>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <div class="w-6 h-6 rounded-full bg-purple-100 text-[#a855f7] flex items-center justify-center text-xs font-bold shrink-0">3</div>
+                                <div><span class="text-xs font-bold text-slate-700">Cool-down:</span> <span class="text-xs text-slate-500">ยืดเหยียดร่างกาย 3 นาที (หลังจบ)</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- กลุ่มท่าออกกำลังกาย -->
+                    <div class="space-y-4 pt-2">
+                        <h3 class="font-bold text-slate-800 text-sm flex items-center gap-1.5">🤸‍♀️ กลุ่มท่าออกกำลังกาย <span class="text-[10px] font-normal text-slate-400 ml-1">(เลือกสลับทำวันละกลุ่ม)</span></h3>
+                        
+                        <div class="neu-flat p-4 border-l-4 border-rose-400">
+                            <h4 class="text-xs font-black text-rose-500 mb-2">🔥 กลุ่มที่ 1: เน้นเบิร์นไขมัน (ทำวันจันทร์และพฤหัสบดี)</h4>
+                            <ul class="text-xs text-slate-600 space-y-2 pl-4 list-disc marker:text-rose-300">
+                                <li><b>กระโดดตบ:</b> ทำต่อเนื่อง 1 นาที (ลงปลายเท้าเบาๆ)</li>
+                                <li><b>ท่าปีนเขา (Mountain Climbers):</b> ทำต่อเนื่อง 40 วินาที (มือยันพื้น ดึงเข่าสลับซ้าย-ขวา)</li>
+                                <li><b>วิ่งยกเข่าสูง:</b> ทำต่อเนื่อง 1 นาที (ยกเข่าให้ขนานกับพื้น)</li>
+                            </ul>
+                        </div>
+
+                        <div class="neu-flat p-4 border-l-4 border-indigo-400">
+                            <h4 class="text-xs font-black text-indigo-500 mb-2">🍑 กลุ่มที่ 2: เน้นกระชับสะโพกและขา (ทำวันอังคาร)</h4>
+                            <ul class="text-xs text-slate-600 space-y-2 pl-4 list-disc marker:text-indigo-300">
+                                <li><b>Squats:</b> ทำ 20 ครั้ง (เหมือนนั่งเก้าอี้ น้ำหนักลงที่ส้นเท้า หลังตรง)</li>
+                                <li><b>Lunges:</b> ทำข้างละ 10 ครั้ง (ก้าวขาไปข้างหน้า ย่อตัวลงเข่าทำมุม 90 องศา)</li>
+                                <li><b>เตะขาหลัง (Glute Kickback):</b> ทำข้างละ 15 ครั้ง (คุกเข่าบนพื้น เตะขาไปด้านหลัง)</li>
+                            </ul>
+                        </div>
+
+                        <div class="neu-flat p-4 border-l-4 border-sky-400">
+                            <h4 class="text-xs font-black text-sky-500 mb-2">🧘‍♀️ กลุ่มที่ 3: เน้นหน้าท้องและเอว (ทำวันพุธ)</h4>
+                            <ul class="text-xs text-slate-600 space-y-2 pl-4 list-disc marker:text-sky-300">
+                                <li><b>Plank:</b> ค้างไว้ 45 วินาที (ตัวตรง ไม่แอ่นหลัง)</li>
+                                <li><b>จักรยานอากาศ:</b> ทำ 20 ครั้ง (บิดตัวให้ศอกแตะเข่าฝั่งตรงข้าม)</li>
+                                <li><b>ยกขาตรง:</b> ทำ 15 ครั้ง (นอนหงาย ยกขาขึ้น-ลงช้าๆ ห้ามแตะพื้น)</li>
+                            </ul>
+                        </div>
+
+                        <div class="neu-flat p-4 border-l-4 border-amber-400">
+                            <h4 class="text-xs font-black text-amber-500 mb-2">🎲 กลุ่มที่ 4: วันศุกร์ (Mix & Match)</h4>
+                            <p class="text-xs text-slate-600">เลือกท่าที่ชอบที่สุดจากกลุ่ม 1-3 มา 4 ท่า ทำท่าละ 1 นาที สลับกันไปจนครบ 4 รอบ</p>
+                        </div>
+                    </div>
+
+                    <!-- บันทึกช่วยจำ & หัวใจสำคัญ -->
+                    <div class="space-y-4 pt-4 border-t border-purple-100">
+                        <div class="bg-purple-50 p-4 rounded-xl text-xs text-slate-700 leading-relaxed shadow-inner">
+                            <span class="font-bold text-[#a855f7] block mb-1">📝 บันทึกช่วยจำ (สำคัญมาก)</span>
+                            <b>วันเสาร์ - อาทิตย์:</b> พักผ่อน (Rest Day) แต่ให้เดินแกว่งแขนหรือขยับตัวบ่อยๆ แทนการนอนเฉยๆ
+                        </div>
+
+                        <h3 class="font-bold text-slate-800 text-sm mt-4">❤️ หัวใจสำคัญ</h3>
+                        <ul class="text-xs text-slate-600 space-y-2 pl-4 list-disc marker:text-[#a855f7]">
+                            <li><b>เน้นความต่อเนื่อง:</b> ถ้าทำท่าไหนแล้วหอบจนพูดไม่เป็นคำ ให้พักหายใจสักครู่แล้วค่อยต่อ</li>
+                            <li><b>การหายใจ:</b> อย่ากลั้นหายใจขณะออกแรง ให้หายใจออกตอนออกแรง และหายใจเข้าตอนผ่อนแรง</li>
+                            <li><b>ความสม่ำเสมอ:</b> หากวันไหนสอนหนักจนเหนื่อยมาก ให้ลดจำนวนรอบลงเหลือ 2 รอบแทนการหยุดไปเลยครับ</li>
+                        </ul>
+
+                        <h3 class="font-bold text-slate-800 text-sm mt-4">🎒 สรุปสิ่งที่ต้องเตรียมก่อนเริ่ม</h3>
+                        <ul class="text-xs text-slate-600 space-y-2 pl-4 list-disc marker:text-[#a855f7]">
+                            <li><b>น้ำดื่ม 1 ขวด:</b> จิบระหว่างพัก</li>
+                            <li><b>รองเท้าผ้าใบ:</b> ใส่เพื่อป้องกันข้อเท้าบาดเจ็บ (ถึงจะทำในบ้านก็ควรใส่ครับ)</li>
+                            <li><b>ความมั่นใจ:</b> เจ้าสาวทำได้แน่นอนค่ะ เป้าหมาย 10 กก. ไม่ไกลเกินเอื้อม!</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- BOTTOM NAV (FIXED) -->
+        <nav class="fixed bottom-4 left-1/2 -translate-x-1/2 w-[92%] max-w-[400px] bg-[var(--bg-color)] rounded-2xl flex justify-between px-2 py-2 z-50 shadow-[8px_8px_16px_var(--shadow-dark),-8px_-8px_16px_var(--shadow-light)]">
+            <button onclick="switchView('dashboard')" id="nav-dashboard" class="flex-1 flex flex-col items-center py-2 text-[#a855f7] font-black transition rounded-xl">
+                <span class="text-xl mb-1 drop-shadow-md">🏠</span><span class="text-[9px]">Home</span>
+            </button>
+            <button onclick="switchView('calendar')" id="nav-calendar" class="flex-1 flex flex-col items-center py-2 text-slate-400 font-bold transition rounded-xl">
+                <span class="text-xl mb-1 opacity-60">📅</span><span class="text-[9px]">Calendar</span>
+            </button>
+            <button onclick="switchView('timer')" id="nav-timer" class="flex-1 flex flex-col items-center py-2 text-slate-400 font-bold transition rounded-xl">
+                <span class="text-xl mb-1 opacity-60">⏱️</span><span class="text-[9px]">Coach</span>
+            </button>
+            <button onclick="switchView('guide')" id="nav-guide" class="flex-1 flex flex-col items-center py-2 text-slate-400 font-bold transition rounded-xl">
+                <span class="text-xl mb-1 opacity-60">📖</span><span class="text-[9px]">Guide</span>
+            </button>
+        </nav>
+        
+        <!-- DAY DETAIL MODAL -->
+        <div id="dayDetailModal" class="fixed inset-x-0 bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md mx-auto bg-[var(--bg-color)] rounded-t-[30px] shadow-[0_-15px_30px_rgba(0,0,0,0.1)] z-[60] transform translate-y-full transition-transform duration-300 ease-out hidden">
+            <div class="w-12 h-1.5 bg-purple-200 rounded-full mx-auto my-4 shadow-inner"></div>
+            <div class="p-6 pt-2 space-y-6">
+                <div class="flex justify-between items-center">
+                    <h2 id="modal-date" class="text-lg font-black text-slate-800">วันที่เลือก</h2>
+                    <button onclick="closeModal()" class="w-8 h-8 neu-btn flex items-center justify-center text-slate-500 font-bold">&times;</button>
+                </div>
+                <div class="space-y-5">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-2 ml-1">น้ำหนักวันนี้ (กก.)</label>
+                        <div class="neu-pressed p-1">
+                            <input type="number" id="modal-weight" step="0.1" class="w-full bg-transparent p-3 text-slate-800 text-center text-lg font-black focus:outline-none">
+                        </div>
+                    </div>
+                    <div class="space-y-3 neu-flat p-5">
+                        <label class="flex items-center gap-4 cursor-not-allowed opacity-70">
+                            <input type="checkbox" id="modal-goal1" class="neu-checkbox pointer-events-none" disabled>
+                            <div>
+                                <span class="text-xs font-bold text-slate-700 block">ออกกำลังกาย</span>
+                                <span class="text-[9px] text-[#a855f7] font-bold">บันทึกอัตโนมัติผ่านหน้าโค้ช ⏱️</span>
+                            </div>
+                        </label>
+                        <label class="flex items-center gap-4 cursor-pointer">
+                            <input type="checkbox" id="modal-check1" class="neu-checkbox" onchange="toggleModalTask(event)">
+                            <span class="text-xs font-bold text-slate-700">ทำ IF 16/8 สำเร็จ</span>
+                        </label>
+                        <label class="flex items-center gap-4 cursor-pointer">
+                            <input type="checkbox" id="modal-check2" class="neu-checkbox" onchange="toggleModalTask(event)">
+                            <span class="text-xs font-bold text-slate-700">ลดหวาน 25-50% / งดของหวาน</span>
+                        </label>
+                        <label class="flex items-center gap-4 cursor-pointer">
+                            <input type="checkbox" id="modal-check3" class="neu-checkbox" onchange="toggleModalTask(event)">
+                            <span class="text-xs font-bold text-slate-700">ดื่มน้ำเปล่า 2.5 ลิตร</span>
+                        </label>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 pb-4">
+                        <button onclick="closeModal()" class="neu-btn text-slate-600 font-bold py-3 text-sm">ยกเลิก</button>
+                        <button id="btn-modal-save" onclick="saveModalReport(this)" class="neu-btn-primary font-bold py-3 text-sm">บันทึก</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- MODAL BACKDROP -->
+        <div id="modalBackdrop" onclick="closeModal()" class="fixed inset-0 z-[55] bg-slate-900/40 backdrop-blur-sm hidden transition-opacity duration-300 opacity-0"></div>
+
+        <!-- 🍔 TICKET CONFIRM MODAL -->
+        <div id="ticketConfirmModal" class="fixed inset-0 z-[70] hidden flex items-center justify-center px-4">
+            <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onclick="closeTicketModal()"></div>
+            <div class="neu-floating p-6 z-10 w-full max-w-[300px] text-center transform scale-95 opacity-0 transition-all duration-300" id="ticketConfirmCard">
+                <div class="text-4xl mb-4">🍰🧋</div>
+                <h3 class="text-lg font-black text-slate-800 mb-2">ใช้ตั๋วชีทมีล?</h3>
+                <p class="text-sm text-slate-500 mb-6 font-medium">คุณแน่ใจหรือไม่ว่าจะใช้ตั๋ว 1 ใบเพื่อกินของอร่อยมื้อนี้?</p>
+                <div class="flex gap-3">
+                    <button onclick="closeTicketModal()" class="neu-btn flex-1 py-3 text-slate-600 font-bold text-sm">ยกเลิก</button>
+                    <button onclick="confirmUseTicket()" class="neu-btn-primary flex-1 py-3 font-bold text-sm">ยืนยัน</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 🎉 REWARD MODAL -->
+        <div id="rewardModal" class="fixed inset-0 z-[70] hidden flex items-center justify-center px-4">
+            <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onclick="closeRewardModal()"></div>
+            <div class="neu-floating p-6 z-10 w-full max-w-[300px] text-center transform scale-95 opacity-0 transition-all duration-300" id="rewardCard">
+                <div class="text-5xl mb-4">🎉🎟️</div>
+                <h3 class="text-xl font-black text-[#a855f7] mb-2" id="rewardTitle">ยินดีด้วย!</h3>
+                <p class="text-sm text-slate-600 mb-6 font-medium leading-relaxed" id="rewardMessage">--</p>
+                <button onclick="closeRewardModal()" class="neu-btn-primary w-full py-3 font-bold text-sm">ยอดเยี่ยมไปเลย!</button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ================= JAVASCRIPT ================= -->
+    <script>
+        // --- 0. API LINK TO GOOGLE DRIVE ---
+        const API_URL = "https://script.google.com/macros/s/AKfycbyAQ4GGij84CBusCQ2nZF5WsQkpR2zhV3Sqm57vFIoFdXW_MV68yqgIyrhYHoSByGeK/exec";
+
+        // --- 1. CORE UTILITIES ---
+        function vibratePhone(pattern = 40) { 
+            if ('vibrate' in navigator) navigator.vibrate(pattern); 
+        }
+        function getFormattedDateString(dateObj) { 
+            return `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}-${String(dateObj.getDate()).padStart(2, '0')}`; 
+        }
+        function parseDateStr(dStr) { 
+            const parts = dStr.split('-'); 
+            if (parts.length !== 3) return new Date();
+            return new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2])); 
+        }
+        function formatTimeSpan(totalSeconds) {
+            const h = Math.floor(totalSeconds / 3600);
+            const m = Math.floor((totalSeconds % 3600) / 60);
+            const s = totalSeconds % 60;
+            if (h > 0) return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+            return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+        }
+
+        // --- 2. GLOBAL DATA & CONFIGURATION (BRIDE VERSION) ---
+        const monthsData = [
+            { name: "มิถุนายน", days: 30, start: 1, strategyTitle: "เดือนที่ 1: ปรับสภาพและสร้างนิสัย", strategyDesc: "เริ่มต้นเบาๆ สร้างความเคยชิน ไม่หักโหม" },
+            { name: "กรกฎาคม", days: 31, start: 3, strategyTitle: "เดือนที่ 2: ความสม่ำเสมอ", strategyDesc: "รักษาวินัยให้ต่อเนื่อง ร่างกายเริ่มปรับตัว" },
+            { name: "สิงหาคม", days: 31, start: 6, strategyTitle: "เดือนที่ 3: เริ่มท้าทายขีดจำกัด", strategyDesc: "เพิ่มรอบความเข้มข้นของการออกกำลังกาย" },
+            { name: "กันยายน", days: 30, start: 2, strategyTitle: "เดือนที่ 4: รักษาวินัยให้อยู่หมัด", strategyDesc: "คุมอาหารและน้ำดื่มให้เป๊ะที่สุด" },
+            { name: "ตุลาคม", days: 31, start: 4, strategyTitle: "เดือนที่ 5: โค้งสุดท้ายก่อนถึงเส้นชัย", strategyDesc: "ใส่เต็มสูบ! ท้าทาย Level 3 รีดไขมันส่วนเกิน" },
+            { name: "พฤศจิกายน", days: 30, start: 0, strategyTitle: "เดือนที่ 6: ลดบวมน้ำก่อนวันงาน", strategyDesc: "ออกเบาๆ เน้นงดของหวานและดื่มน้ำล้างโซเดียม" }
+        ];
+        const thaiMonthNames = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
+        
+        const monthlyQuestsConfig = {
+            0: [
+                { id: 'm0_q1', title: '🔥 ก้าวแรกของเจ้าสาว', desc: 'จบโปรแกรม Lv.1 (4 รอบ) ขึ้นไป (5 วัน)', target: 5, isStreak: false, check: d => d && d.g1 && d.wkLvl >= 1 },
+                { id: 'm0_q2', title: '🥗 เริ่มต้นเบาๆ', desc: 'ทำ IF คู่กับ คุมหวาน สำเร็จ (15 วัน)', target: 15, isStreak: false, check: d => d && d.c1 && d.c2 },
+                { id: 'm0_q3', title: '💧 ผิวใสใจฟู', desc: 'ออกกำลังกาย คู่กับ ดื่มน้ำ 2.5L (5 วัน)', target: 5, isStreak: false, check: d => d && d.g1 && d.c3 }
+            ],
+            1: [
+                { id: 'm1_q1', title: '🔥 ฟิตต่อเนื่อง', desc: 'จบโปรแกรม Lv.1 (4 รอบ) ขึ้นไป (8 วัน)', target: 8, isStreak: false, check: d => d && d.g1 && d.wkLvl >= 1 },
+                { id: 'm1_q2', title: '💧 สายน้ำแห่งชีวิต', desc: 'ดื่มน้ำ 2.5L ติดต่อกัน 7 วันรวด', target: 7, isStreak: true, check: d => d && d.c3 },
+                { id: 'm1_q3', title: '🥗 หวานน้อยแต่ฟิตมาก', desc: 'ออกกำลังกาย คู่กับ คุมหวาน (8 วัน)', target: 8, isStreak: false, check: d => d && d.g1 && d.c2 }
+            ],
+            2: [
+                { id: 'm2_q1', title: '🔥 แตะขีดจำกัด', desc: 'จบโปรแกรม Lv.2 (6 รอบ) ขึ้นไป (2 วัน)', target: 2, isStreak: false, check: d => d && d.g1 && d.wkLvl >= 2 },
+                { id: 'm2_q2', title: '🛡️ งดหวานสู้ตาย', desc: 'คุมหวาน/งดหวาน ติดต่อกัน 7 วันรวด', target: 7, isStreak: true, check: d => d && d.c2 },
+                { id: 'm2_q3', title: '⏱️ คุมเวลาคุมร่าง', desc: 'ออกกำลังกาย คู่กับ ทำ IF (10 วัน)', target: 10, isStreak: false, check: d => d && d.g1 && d.c1 }
+            ],
+            3: [
+                { id: 'm3_q1', title: '🔥 พลังเริ่มมา', desc: 'จบโปรแกรม Lv.2 (6 รอบ) ขึ้นไป (4 วัน)', target: 4, isStreak: false, check: d => d && d.g1 && d.wkLvl >= 2 },
+                { id: 'm3_q2', title: '💧 ดื่มน้ำทะลุเป้า', desc: 'ดื่มน้ำ 2.5L ติดต่อกัน 10 วันรวด', target: 10, isStreak: true, check: d => d && d.c3 },
+                { id: 'm3_q3', title: '👑 วันสุดเพอร์เฟกต์', desc: 'ติ๊กภารกิจครบ 4 ข้อในวันเดียว (4 วัน)', target: 4, isStreak: false, check: d => d && d.g1 && d.c1 && d.c2 && d.c3 }
+            ],
+            4: [
+                { id: 'm4_q1', title: '🔥 ชนะใจตัวเอง', desc: 'จบโปรแกรม Lv.3 (8 รอบเต็มสูบ) (1 วัน)', target: 1, isStreak: false, check: d => d && d.g1 && d.wkLvl >= 3 },
+                { id: 'm4_q2', title: '⏱️ IF Master', desc: 'ทำ IF 16/8 สำเร็จสะสม (20 วัน)', target: 20, isStreak: false, check: d => d && d.c1 },
+                { id: 'm4_q3', title: '⚔️ รีดไขมัน', desc: 'จบ Lv.2+ คู่กับ ดื่มน้ำ+คุมหวาน (5 วัน)', target: 5, isStreak: false, check: d => d && d.g1 && d.wkLvl >= 2 && d.c3 && d.c2 }
+            ],
+            5: [
+                { id: 'm5_q1', title: '🚶 Active Rest', desc: 'ออกกำลังกายขยับตัว (Level ใดก็ได้) (15 วัน)', target: 15, isStreak: false, check: d => d && d.g1 },
+                { id: 'm5_q2', title: '🚫 ไร้น้ำตาลลดบวม', desc: 'คุมหวาน/งดของหวานเด็ดขาด (20 วัน)', target: 20, isStreak: false, check: d => d && d.c2 },
+                { id: 'm5_q3', title: '💧 ล้างโซเดียม', desc: 'ดื่มน้ำ 2.5L คู่กับ ทำ IF (15 วัน)', target: 15, isStreak: false, check: d => d && d.c3 && d.c1 }
+            ]
+        };
+
+        function getRecommendedWorkout(monthIdx, dayOfWeek) {
+            const dayActivities = { 0: 'REST', 1: 'G1', 2: 'G2', 3: 'G3', 4: 'G1', 5: 'RANDOM', 6: 'REST' };
+            const activity = dayActivities[dayOfWeek];
+            let level = 1; 
+            const nameMap = { 'G1': '🔥 กลุ่ม 1 (เน้นเบิร์นไขมัน)', 'G2': '🍑 กลุ่ม 2 (กระชับสะโพกและขา)', 'G3': '🧘‍♀️ กลุ่ม 3 (เน้นหน้าท้องและเอว)', 'RANDOM': '🎲 วันศุกร์ (Mix & Match 4 ท่า)', 'REST': '🛏️ วันพักผ่อน (Rest Day)' };
+            
+            return {
+                typeId: activity,
+                level: level,
+                displayName: `${nameMap[activity]} ${activity !== 'REST' ? `[4 รอบ]` : ''}`
+            };
+        }
+
+        // --- 3. STATE MANAGEMENT ---
+        let logs = JSON.parse(localStorage.getItem('brideWeddingLogs')) || {};
+        let profile = JSON.parse(localStorage.getItem('brideWeddingProfile')) || { startWeight: 60.0, targetWeight: 50.0, weddingDate: '2026-11-22' };
+        let tickets = parseInt(localStorage.getItem('brideWeddingTickets')) || 0;
+        let claimedMilestones = JSON.parse(localStorage.getItem('brideWeddingClaimedMilestones')) || [];
+        let claimedMonthlyQuests = JSON.parse(localStorage.getItem('brideWeddingMonthlyClaimed')) || []; 
+        
+        let realTodayStr = getFormattedDateString(new Date());
+        let currentCalMonth = 0; 
+        let selectedModalDate = "";
+        let masterCountdownInterval = null; 
+        let recommendedWkType = 'G1';
+        let recommendedWkLvl = 1;
+
+        // --- FETCH TO GOOGLE DRIVE ---
+        function saveLogToCloud(dateStr) {
+            const dayData = logs[dateStr] || {};
+            const payload = {
+                type: 'log',
+                date: dateStr,
+                weight: dayData.weight || "",
+                g1: !!dayData.g1,
+                c1: !!dayData.c1,
+                c2: !!dayData.c2,
+                c3: !!dayData.c3
+            };
+            fetch(API_URL, {
+                method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(payload)
+            }).catch(e => console.log('Background sync error (Logs):', e));
+        }
+
+        function saveProfileToCloud() {
+            const payload = {
+                type: 'profile',
+                payload: {
+                    profile: profile,
+                    tickets: tickets,
+                    claimedMilestones: claimedMilestones,
+                    claimedMonthlyQuests: claimedMonthlyQuests
+                }
+            };
+            fetch(API_URL, {
+                method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(payload)
+            }).catch(e => console.log('Background sync error (Profile):', e));
+        }
+
+        // --- 4. AUDIO SYSTEM ---
+        let globalAudioCtx = null;
+        function initAudio() {
+            if (!globalAudioCtx) {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (AudioContext) {
+                    globalAudioCtx = new AudioContext();
+                    const osc = globalAudioCtx.createOscillator();
+                    osc.connect(globalAudioCtx.destination); osc.start(0); osc.stop(0.001);
+                }
+            } else if (globalAudioCtx.state === 'suspended') { globalAudioCtx.resume(); }
+        }
+        function playShortBeep() { 
+            try {
+                if (!globalAudioCtx) initAudio(); const ctx = globalAudioCtx; if (!ctx) return;
+                const osc = ctx.createOscillator(); const gain = ctx.createGain();
+                osc.connect(gain); gain.connect(ctx.destination);
+                osc.type = 'sine'; osc.frequency.value = 1000; 
+                gain.gain.setValueAtTime(0.5, ctx.currentTime); 
+                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2); 
+                osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.2);
+            } catch (e) {}
+        }
+        function playDoneAlarm() { 
+            try {
+                if (!globalAudioCtx) initAudio(); const ctx = globalAudioCtx; if (!ctx) return;
+                let roundsCompleted = 0;
+                function playOneRound() {
+                    if (roundsCompleted >= 3) return; 
+                    for (let i = 0; i < 3; i++) {
+                        setTimeout(() => {
+                            const osc = ctx.createOscillator(); const gain = ctx.createGain();
+                            osc.connect(gain); gain.connect(ctx.destination);
+                            osc.type = 'sine'; osc.frequency.value = 800; 
+                            gain.gain.setValueAtTime(1, ctx.currentTime); 
+                            gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3); 
+                            osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.3);
+                        }, i * 400); 
+                    }
+                    roundsCompleted++; if (roundsCompleted < 3) setTimeout(playOneRound, 2000); 
+                }
+                playOneRound();
+            } catch (e) {}
+        }
+
+        // --- 5. SMART WORKOUT COACH (Timer Logic) ---
+        let currentWkType = 'G1';
+        let currentWkLvl = 1;
+        let coachInterval = null;
+        let coachIsRunning = false;
+        let wkPhases = [];
+        let currentPhaseIdx = 0;
+        let phaseSecsLeft = 0;
+        let totalSecsLeft = 0;
+        let randomSelectedExercises = []; 
+
+        function setRecommendedWorkout() {
+            vibratePhone(30);
+            if (recommendedWkType === 'REST') {
+                alert("วันนี้โค้ชให้พักผ่อนเต็มที่นะคะ! 🛏️ ขยับตัวเบาๆ ทำงานบ้านก็พอค่ะ");
+                return;
+            }
+            selectWorkout(recommendedWkType);
+            setTimeout(() => { selectLevel(recommendedWkLvl); }, 50);
+        }
+
+        function selectWorkout(type) {
+            vibratePhone(20);
+            currentWkType = type;
+            
+            ['G1', 'G2', 'G3', 'RANDOM'].forEach(id => {
+                const btn = document.getElementById(`btn-wk-${id}`);
+                if(type === id) { btn.className = "neu-pressed text-[#a855f7] py-2.5 text-xs font-bold rounded-xl transition"; }
+                else { btn.className = "neu-btn text-slate-500 py-2.5 text-xs font-bold rounded-xl transition"; }
+            });
+            
+            if(type === 'RANDOM') {
+                const allEx = [
+                    {name: "🔥 กระโดดตบ", d: 60}, {name: "🔥 ท่าปีนเขา", d: 40}, {name: "🔥 วิ่งยกเข่าสูง", d: 60},
+                    {name: "🍑 Squats", d: 60}, {name: "🍑 Lunges", d: 60}, {name: "🍑 เตะขาหลัง", d: 60},
+                    {name: "🧘‍♀️ Plank", d: 45}, {name: "🧘‍♀️ จักรยานอากาศ", d: 60}, {name: "🧘‍♀️ ยกขาตรง", d: 60}
+                ];
+                randomSelectedExercises = [...allEx].sort(() => 0.5 - Math.random()).slice(0, 4);
+            }
+
+            selectLevel(currentWkLvl); 
+        }
+
+        function selectLevel(lvl) {
+            vibratePhone(20);
+            currentWkLvl = lvl;
+            [0, 1, 2, 3].forEach(id => {
+                const btn = document.getElementById(`btn-lvl-${id}`);
+                if(lvl === id) { btn.className = "neu-pressed text-[#a855f7] py-2 text-[11px] font-bold rounded-xl transition flex flex-col items-center"; }
+                else { btn.className = "neu-btn text-slate-500 py-2 text-[11px] font-bold rounded-xl transition flex flex-col items-center"; }
+            });
+            loadWorkoutProgram();
+        }
+
+        function generateWorkoutPhases() {
+            let p = [];
+            let rounds = currentWkLvl === 0 ? 2 : (currentWkLvl === 1 ? 4 : (currentWkLvl === 2 ? 6 : 8));
+            
+            for(let i=0; i<rounds; i++) {
+                if (currentWkType === 'G1') {
+                    p.push({name: "🔥 กระโดดตบ (รอบ " + (i+1) + ")", duration: 60, color: "text-[#a855f7]", ringColor: "#a855f7"});
+                    p.push({name: "⏱️ เตรียมตัวท่าต่อไป", duration: 10, color: "text-amber-500", ringColor: "#f59e0b"});
+                    p.push({name: "🔥 ท่าปีนเขา (Mountain Climbers)", duration: 40, color: "text-[#a855f7]", ringColor: "#a855f7"});
+                    p.push({name: "⏱️ เตรียมตัวท่าต่อไป", duration: 10, color: "text-amber-500", ringColor: "#f59e0b"});
+                    p.push({name: "🔥 วิ่งยกเข่าสูง", duration: 60, color: "text-[#a855f7]", ringColor: "#a855f7"});
+                } else if (currentWkType === 'G2') {
+                    p.push({name: "🍑 Squats (รอบ " + (i+1) + ")", duration: 60, color: "text-[#a855f7]", ringColor: "#a855f7"});
+                    p.push({name: "⏱️ เตรียมตัวท่าต่อไป", duration: 10, color: "text-amber-500", ringColor: "#f59e0b"});
+                    p.push({name: "🍑 Lunges (สลับซ้าย-ขวา)", duration: 60, color: "text-[#a855f7]", ringColor: "#a855f7"});
+                    p.push({name: "⏱️ เตรียมตัวท่าต่อไป", duration: 10, color: "text-amber-500", ringColor: "#f59e0b"});
+                    p.push({name: "🍑 เตะขาหลัง (Glute Kickback)", duration: 60, color: "text-[#a855f7]", ringColor: "#a855f7"});
+                } else if (currentWkType === 'G3') {
+                    p.push({name: "🧘‍♀️ Plank (รอบ " + (i+1) + ")", duration: 45, color: "text-[#a855f7]", ringColor: "#a855f7"});
+                    p.push({name: "⏱️ เตรียมตัวท่าต่อไป", duration: 10, color: "text-amber-500", ringColor: "#f59e0b"});
+                    p.push({name: "🧘‍♀️ จักรยานอากาศ", duration: 60, color: "text-[#a855f7]", ringColor: "#a855f7"});
+                    p.push({name: "⏱️ เตรียมตัวท่าต่อไป", duration: 10, color: "text-amber-500", ringColor: "#f59e0b"});
+                    p.push({name: "🧘‍♀️ ยกขาตรง (Leg Raises)", duration: 60, color: "text-[#a855f7]", ringColor: "#a855f7"});
+                } else if (currentWkType === 'RANDOM') {
+                    if(randomSelectedExercises.length === 0) return [];
+                    randomSelectedExercises.forEach((ex, idx) => {
+                        p.push({name: `${ex.name} (รอบ ${i+1})`, duration: ex.d, color: "text-[#a855f7]", ringColor: "#a855f7"});
+                        if (idx < 3) p.push({name: "⏱️ เตรียมตัวท่าต่อไป", duration: 10, color: "text-amber-500", ringColor: "#f59e0b"});
+                    });
+                }
+                if (i < rounds - 1) {
+                    p.push({name: "💧 พัก 1 นาที (หายใจลึกๆ)", duration: 60, color: "text-sky-500", ringColor: "#0ea5e9"});
+                }
+            }
+            return p;
+        }
+
+        function loadWorkoutProgram() {
+            resetSmartTimer();
+            wkPhases = generateWorkoutPhases();
+            totalSecsLeft = 0;
+            wkPhases.forEach(ph => totalSecsLeft += ph.duration);
+            
+            if (wkPhases.length > 0) {
+                phaseSecsLeft = wkPhases[0].duration;
+                updateCoachUI();
+                document.getElementById('timer-phase-name').innerText = "พร้อมแล้วกด START เลย!";
+                document.getElementById('timer-phase-name').className = "text-[11px] font-extrabold text-slate-500 mt-2 block px-2 leading-tight";
+                document.getElementById('timer-progress-svg').style.strokeDashoffset = "0"; 
+                document.getElementById('timer-progress-svg').classList.replace('text-[#a855f7]', 'text-slate-300');
+            }
+        }
+
+        function updateCoachUI() {
+            document.getElementById('timer-total-display').innerText = formatTimeSpan(totalSecsLeft);
+            document.getElementById('timer-phase-display').innerText = formatTimeSpan(phaseSecsLeft);
+            
+            if (coachIsRunning || currentPhaseIdx > 0) {
+                const currentPh = wkPhases[currentPhaseIdx];
+                document.getElementById('timer-phase-name').innerText = currentPh.name;
+                document.getElementById('timer-phase-name').className = `text-[11px] font-extrabold mt-2 block px-2 leading-tight ${currentPh.color}`;
+                
+                const fullDash = 728.8;
+                let pct = phaseSecsLeft / currentPh.duration;
+                document.getElementById('timer-progress-svg').style.strokeDashoffset = fullDash - (pct * fullDash);
+                
+                const svgCircle = document.getElementById('timer-progress-svg');
+                svgCircle.style.color = currentPh.ringColor;
+                svgCircle.classList.remove('text-slate-300');
+            }
+        }
+
+        function toggleSmartTimer() {
+            vibratePhone(40);
+            initAudio();
+
+            if (coachIsRunning) {
+                clearInterval(coachInterval); coachIsRunning = false;
+                document.getElementById('btn-timer-action').innerText = "RESUME";
+            } else {
+                if(totalSecsLeft <= 0) return;
+                coachIsRunning = true;
+                document.getElementById('btn-timer-action').innerText = "PAUSE";
+                
+                updateCoachUI();
+                coachInterval = setInterval(() => {
+                    phaseSecsLeft--;
+                    totalSecsLeft--;
+                    
+                    if (phaseSecsLeft <= 0) {
+                        currentPhaseIdx++;
+                        if (currentPhaseIdx >= wkPhases.length) {
+                            clearInterval(coachInterval); coachIsRunning = false;
+                            document.getElementById('timer-phase-display').innerText = "00:00";
+                            document.getElementById('timer-phase-name').innerText = "🎉 เก่งมากค่ะเจ้าสาว! ทำสำเร็จแล้ว";
+                            document.getElementById('timer-phase-name').className = "text-xs font-extrabold text-emerald-500 mt-2 block px-2 leading-tight";
+                            document.getElementById('btn-timer-action').innerText = "START";
+                            document.getElementById('timer-progress-svg').style.strokeDashoffset = "728.8"; 
+                            playDoneAlarm(); vibratePhone([200, 100, 200, 100, 500]);
+
+                            setTimeout(() => {
+                                if(!logs[realTodayStr]) logs[realTodayStr] = {}; 
+                                logs[realTodayStr]['g1'] = true; 
+                                logs[realTodayStr]['wkType'] = currentWkType;
+                                logs[realTodayStr]['wkLvl'] = currentWkLvl; 
+                                localStorage.setItem('brideWeddingLogs', JSON.stringify(logs)); 
+                                saveLogToCloud(realTodayStr); // ☁️
+                                refreshAll(false);
+                                
+                                showRewardModal(`คุณออกกำลังกายจนจบโปรแกรมแล้ว!<br>แอปได้บันทึก <b>"เป้าหมายออกกำลังกาย"</b> ของวันนี้ให้เรียบร้อยค่ะ 🏆`, "ภารกิจเสร็จสิ้น!");
+                            }, 2000);
+
+                            return;
+                        } else {
+                            phaseSecsLeft = wkPhases[currentPhaseIdx].duration;
+                            playShortBeep(); vibratePhone([100, 50, 100]);
+                        }
+                    }
+                    updateCoachUI();
+                }, 1000);
+            }
+        }
+
+        function resetSmartTimer() {
+            vibratePhone(20);
+            clearInterval(coachInterval); coachIsRunning = false;
+            currentPhaseIdx = 0;
+            document.getElementById('btn-timer-action').innerText = "START";
+            
+            wkPhases = generateWorkoutPhases();
+            totalSecsLeft = 0; wkPhases.forEach(ph => totalSecsLeft += ph.duration);
+            if (wkPhases.length > 0) phaseSecsLeft = wkPhases[0].duration;
+            
+            updateCoachUI();
+            document.getElementById('timer-phase-name').innerText = "พร้อมแล้วกด START เลย!";
+            document.getElementById('timer-phase-name').className = "text-[11px] font-extrabold text-slate-500 mt-2 block px-2 leading-tight";
+            document.getElementById('timer-progress-svg').style.strokeDashoffset = "0"; 
+            document.getElementById('timer-progress-svg').classList.add('text-slate-300');
+        }
+
+
+        // --- 6. UI HELPERS & OTHERS ---
+        function spawnFloatingText(e, text, colorClass = 'text-[#a855f7]') {
+            const el = document.createElement('span'); el.innerText = text; el.className = `floating-text ${colorClass} text-sm`;
+            let x, y;
+            if (e && e.touches && e.touches.length > 0) { x = e.touches[0].clientX; y = e.touches[0].clientY; }
+            else if (e && e.clientX !== undefined) { x = e.clientX; y = e.clientY; }
+            else if (e && e.target) { const rect = e.target.getBoundingClientRect(); x = rect.left + rect.width / 2; y = rect.top; }
+            else { x = window.innerWidth / 2; y = window.innerHeight / 2; }
+            el.style.left = `${x - 20}px`; el.style.top = `${y - 10}px`;
+            document.body.appendChild(el); setTimeout(() => el.remove(), 1000);
+        }
+
+        function animateValue(id, start, end, duration, suffix = " กก.") {
+            const obj = document.getElementById(id); let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                obj.innerText = (progress * (end - start) + start).toFixed(1) + suffix;
+                if (progress < 1) window.requestAnimationFrame(step);
+            };
+            window.requestAnimationFrame(step);
+        }
+
+        // --- 7. MONTHLY QUESTS SYSTEM (ระบบภารกิจประจำเดือน) ---
+        function renderMonthlyQuests() {
+            const monthData = monthsData[currentCalMonth];
+            const yyyy = 2026;
+            const mm = currentCalMonth + 6; 
+            
+            document.getElementById('quest-month-badge').innerText = monthData.name;
+            
+            const monthQuests = monthlyQuestsConfig[currentCalMonth] || monthlyQuestsConfig[0];
+            let html = '';
+            
+            monthQuests.forEach((q, idx) => {
+                let progress = 0;
+                
+                if (q.isStreak) {
+                    let maxStreak = 0;
+                    let currentStreak = 0;
+                    for(let i = 1; i <= monthData.days; i++) {
+                        let dStr = `${yyyy}-${String(mm).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
+                        if (q.check(logs[dStr])) {
+                            currentStreak++;
+                            if(currentStreak > maxStreak) maxStreak = currentStreak;
+                        } else {
+                            currentStreak = 0; 
+                        }
+                    }
+                    progress = maxStreak;
+                } else {
+                    for(let i = 1; i <= monthData.days; i++) {
+                        let dStr = `${yyyy}-${String(mm).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
+                        if (q.check(logs[dStr])) {
+                            progress++;
+                        }
+                    }
+                }
+                
+                let displayProgress = Math.min(progress, q.target);
+                let pct = (displayProgress / q.target) * 100;
+                let claimedKey = `${yyyy}_${mm}_${q.id}`;
+                let isClaimed = claimedMonthlyQuests.includes(claimedKey);
+                let isCompleted = progress >= q.target;
+
+                let actionHtml = '';
+                if (isClaimed) {
+                    actionHtml = `<span class="text-[9px] text-emerald-500 font-black">✅ สำเร็จ</span>`;
+                } else if (isCompleted) {
+                    actionHtml = `<button onclick="claimMonthlyReward('${claimedKey}')" class="text-[9px] bg-[var(--accent-grad)] text-white px-3 py-1 rounded-full shadow-sm font-bold animate-pulse active:scale-95 transition">รับตั๋ว 🎟️</button>`;
+                } else {
+                    actionHtml = `<span class="text-[10px] text-slate-500 font-bold">${displayProgress}/${q.target}</span>`;
+                }
+
+                html += `
+                    <div class="${idx < monthQuests.length - 1 ? 'border-b border-purple-100 pb-4' : ''}">
+                        <div class="flex justify-between items-center mb-2">
+                            <div>
+                                <h4 class="text-xs font-black text-slate-700">${q.title}</h4>
+                                <span class="text-[9px] text-slate-500">${q.desc}</span>
+                            </div>
+                            <div>${actionHtml}</div>
+                        </div>
+                        <div class="w-full neu-pressed h-2 p-[1.5px]">
+                            <div class="bg-[var(--accent-grad)] h-full rounded-full transition-all duration-700" style="width: ${pct}%"></div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            document.getElementById('monthly-quests-container').innerHTML = html;
+        }
+
+        window.claimMonthlyReward = function(claimedKey) {
+            vibratePhone([50, 100, 50]);
+            claimedMonthlyQuests.push(claimedKey);
+            localStorage.setItem('brideWeddingMonthlyClaimed', JSON.stringify(claimedMonthlyQuests));
+            tickets += 1;
+            localStorage.setItem('brideWeddingTickets', tickets);
+            
+            saveProfileToCloud(); // ☁️ อัปเดตตั๋วและเควสขึ้น Cloud
+            
+            confetti({ particleCount: 150, spread: 100, origin: { y: 0.5 }, colors: ['#a855f7', '#c084fc', '#e9d5ff', '#ffffff'] }); 
+            renderMonthlyQuests(); updateTicketUI();
+            setTimeout(() => { showRewardModal(`เก่งมากค่ะเจ้าสาว!<br>คุณพิชิตภารกิจข้ามขีดจำกัดสำเร็จ<br>รับตั๋วชีทมีล <b>1</b> ใบ! 🎟️`); }, 500);
+        }
+
+        function checkMilestonesAndCelebrate(weightInput) {
+            const target = parseFloat(profile.targetWeight); const start = parseFloat(profile.startWeight); const current = parseFloat(weightInput);
+            if (isNaN(current) || current <= 0) return;
+
+            let newlyClaimed = 0;
+            let m = Math.floor((start - 0.1) / 2) * 2; 
+            while (m >= target) { 
+                if (current <= m && !claimedMilestones.includes(m)) { newlyClaimed++; claimedMilestones.push(m); } m -= 2; 
+            }
+            if (current <= target && !claimedMilestones.includes(target)) { newlyClaimed++; claimedMilestones.push(target); }
+
+            if (newlyClaimed > 0) {
+                tickets += newlyClaimed; 
+                localStorage.setItem('brideWeddingTickets', tickets); 
+                localStorage.setItem('brideWeddingClaimedMilestones', JSON.stringify(claimedMilestones));
+                
+                saveProfileToCloud(); // ☁️ อัปเดตตั๋วขึ้น Cloud
+
+                vibratePhone([100, 50, 100, 50, 200, 50, 200]); 
+                confetti({ particleCount: 300, spread: 100, origin: { y: 0.5 }, colors: ['#a855f7', '#fcd34d', '#ffffff'], zIndex: 9999 });
+                setTimeout(() => { 
+                    updateTicketUI();
+                    showRewardModal(`คุณลดน้ำหนักถึงเป้าหมายย่อยแล้ว!<br>ได้รับตั๋วชีทมีล <b>${newlyClaimed}</b> ใบ! 🍰`); 
+                }, 800);
+            }
+        }
+
+        function useTicket() {
+            if (tickets <= 0) return; vibratePhone(20);
+            const modal = document.getElementById('ticketConfirmModal'); const card = document.getElementById('ticketConfirmCard');
+            modal.classList.remove('hidden'); setTimeout(() => { card.classList.remove('scale-95', 'opacity-0'); card.classList.add('scale-100', 'opacity-100'); }, 10);
+        }
+
+        function closeTicketModal() {
+            vibratePhone(20); const modal = document.getElementById('ticketConfirmModal'); const card = document.getElementById('ticketConfirmCard');
+            card.classList.remove('scale-100', 'opacity-100'); card.classList.add('scale-95', 'opacity-0'); setTimeout(() => { modal.classList.add('hidden'); }, 300);
+        }
+
+        function confirmUseTicket() {
+            closeTicketModal();
+            setTimeout(() => {
+                vibratePhone([100, 50, 200]); 
+                tickets -= 1; 
+                localStorage.setItem('brideWeddingTickets', tickets);
+                saveProfileToCloud(); // ☁️ อัปเดตหักตั๋วขึ้น Cloud
+
+                const end = Date.now() + 1.5 * 1000; const colors = ['#a855f7', '#c084fc', '#ffffff'];
+                (function frame() { confetti({ particleCount: 5, angle: 60, spread: 55, origin: { x: 0 }, colors: colors }); confetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1 }, colors: colors }); if (Date.now() < end) requestAnimationFrame(frame); }());
+                updateTicketUI();
+            }, 300); 
+        }
+
+        function showRewardModal(message, title="ยินดีด้วยค่ะ!") {
+            document.getElementById('rewardTitle').innerText = title;
+            document.getElementById('rewardMessage').innerHTML = message;
+            const modal = document.getElementById('rewardModal'); const card = document.getElementById('rewardCard');
+            modal.classList.remove('hidden'); setTimeout(() => { card.classList.remove('scale-95', 'opacity-0'); card.classList.add('scale-100', 'opacity-100'); }, 10);
+        }
+
+        function closeRewardModal() {
+            vibratePhone(20); const modal = document.getElementById('rewardModal'); const card = document.getElementById('rewardCard');
+            card.classList.remove('scale-100', 'opacity-100'); card.classList.add('scale-95', 'opacity-0'); setTimeout(() => { modal.classList.add('hidden'); }, 300);
+        }
+
+        // --- 8. CHART RENDERING ---
+        let weightChartInstance = null;
+        function updateChart() {
+            const ctx = document.getElementById('weightChart').getContext('2d');
+            const sortedDates = Object.keys(logs).filter(d => logs[d].weight).sort();
+            if (sortedDates.length === 0) { document.getElementById('chart-no-data').classList.remove('hidden'); if (weightChartInstance) weightChartInstance.destroy(); return; }
+            document.getElementById('chart-no-data').classList.add('hidden');
+            const labels = sortedDates.map(d => `${parseInt(d.split('-')[2])}/${parseInt(d.split('-')[1])}`); const data = sortedDates.map(d => logs[d].weight);
+
+            if (weightChartInstance) weightChartInstance.destroy();
+            weightChartInstance = new Chart(ctx, {
+                type: 'line', data: { labels: labels, datasets: [{ label: 'น้ำหนัก', data: data, borderColor: '#a855f7', backgroundColor: 'rgba(168, 85, 247, 0.15)', borderWidth: 3, pointBackgroundColor: '#fff', pointBorderColor: '#a855f7', pointBorderWidth: 2, pointRadius: 4, fill: true, tension: 0.4 }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { border: {display: false}, grid: { color: 'rgba(0,0,0,0.05)', drawBorder: false }, ticks: { color: '#718096', font: { size: 10, family: 'Inter' } } }, x: { border: {display: false}, grid: { display: false }, ticks: { color: '#718096', font: { size: 10, family: 'Inter' }, maxTicksLimit: 6 } } } }
+            });
+        }
+
+        // --- 9. APP INITIALIZATION & REFRESH ---
+        function renderCalendarMonth() {
+            const m = monthsData[currentCalMonth];
+            document.getElementById('calendar-month-name').innerText = `${m.name} 69`; document.getElementById('cal-strategy-title').innerText = m.strategyTitle; document.getElementById('cal-strategy-desc').innerText = m.strategyDesc;
+            const grid = document.getElementById('calendar-grid'); grid.innerHTML = "";
+            for (let i = 0; i < m.start; i++) grid.innerHTML += `<div></div>`;
+            for (let i = 1; i <= m.days; i++) {
+                const dStr = `2026-${String(currentCalMonth + 6).padStart(2, '0')}-${String(i).padStart(2, '0')}`; const data = logs[dStr] || {};
+                let dotsHtml = `<div class="flex gap-[3px] mt-1 h-1.5 justify-center">`;
+                if(data.g1) dotsHtml += `<div class="status-dot dot-g1"></div>`; if(data.c1) dotsHtml += `<div class="status-dot dot-c1"></div>`;
+                if(data.c2) dotsHtml += `<div class="status-dot dot-c2"></div>`; if(data.c3) dotsHtml += `<div class="status-dot dot-c3"></div>`; dotsHtml += `</div>`;
+                let dayClass = "h-11 flex flex-col items-center justify-center text-xs font-black cursor-pointer rounded-xl transition relative active:scale-90 ";
+                
+                if (dStr === profile.weddingDate) { dayClass += "bg-gradient-to-br from-purple-400 to-[#a855f7] text-white shadow-[4px_4px_10px_rgba(168,85,247,0.3),-4px_-4px_10px_rgba(255,255,255,0.9)] "; } 
+                else if (dStr === realTodayStr) { dayClass += "neu-pressed text-[#a855f7] "; } 
+                else if (Object.keys(data).length > 0 && data.weight) { dayClass += "text-slate-800 neu-flat "; } 
+                else { dayClass += "text-slate-400 bg-transparent hover:neu-flat"; }
+
+                const dayDiv = document.createElement('div'); dayDiv.className = dayClass; dayDiv.onclick = () => { vibratePhone(20); openDayModal(i, currentCalMonth, dStr); }; dayDiv.innerHTML = `<span>${i}</span>${dotsHtml}`; grid.appendChild(dayDiv);
+            }
+        }
+        function changeMonth(dir) { 
+            vibratePhone(20); 
+            currentCalMonth += dir; 
+            if(currentCalMonth < 0) currentCalMonth = 0; 
+            if(currentCalMonth > 5) currentCalMonth = 5; 
+            renderCalendarMonth(); 
+            renderMonthlyQuests(); 
+        }
+
+        function startCountdown() {
+            if (masterCountdownInterval) clearInterval(masterCountdownInterval);
+            function updateCountdown() {
+                const wDate = parseDateStr(profile.weddingDate); const targetDate = wDate.getTime(); const now = new Date().getTime(); const distance = targetDate - now;
+                if (distance <= 0) { document.getElementById('countdown-grid').innerHTML = `<div class="col-span-4 bg-white/20 p-3 rounded-xl text-center"><span class="block text-xl font-black text-white">🎉 Happy Wedding Day! 🎉</span></div>`; return; }
+                document.getElementById('cd-days').innerText = String(Math.floor(distance / (1000 * 60 * 60 * 24))).padStart(2, '0'); document.getElementById('cd-hours').innerText = String(Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))).padStart(2, '0');
+                document.getElementById('cd-mins').innerText = String(Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, '0'); document.getElementById('cd-secs').innerText = String(Math.floor((distance % (1000 * 60)) / 1000)).padStart(2, '0');
+            }
+            updateCountdown(); masterCountdownInterval = setInterval(updateCountdown, 1000); 
+        }
+
+        function updateTicketUI() {
+            const inv = document.getElementById('ticket-inventory'); 
+            const headerTicketBadge = document.getElementById('header-ticket-badge');
+            if (tickets > 0) { 
+                inv.classList.remove('hidden'); document.getElementById('ticket-count-display').innerText = `x${tickets}`; 
+                headerTicketBadge.classList.remove('hidden'); headerTicketBadge.classList.add('flex'); document.getElementById('header-ticket-count-text').innerText = tickets;
+            } else { 
+                inv.classList.add('hidden'); headerTicketBadge.classList.add('hidden'); headerTicketBadge.classList.remove('flex');
+            }
+        }
+
+        function refreshAll(isInitial = false) {
+            const now = new Date(); realTodayStr = getFormattedDateString(now);
+            if (isInitial && now.getFullYear() === 2026 && now.getMonth() >= 5 && now.getMonth() <= 10) currentCalMonth = now.getMonth() - 5;
+            
+            renderCalendarMonth(); startCountdown(); 
+            
+            const startW = parseFloat(profile.startWeight); const targetW = parseFloat(profile.targetWeight); let latestW = startW;
+            const sortedDates = Object.keys(logs).sort();
+            for (let i = sortedDates.length - 1; i >= 0; i--) { if (logs[sortedDates[i]].weight) { latestW = logs[sortedDates[i]].weight; break; } }
+            
+            const totalLost = startW - latestW; const remaining = latestW - targetW; const targetDelta = startW - targetW;
+            document.getElementById('stat-start-weight').innerText = startW.toFixed(1); document.getElementById('stat-target-weight').innerText = targetW.toFixed(1); document.getElementById('header-target-weight-text').innerText = targetW;
+
+            if (isInitial) { animateValue('stat-total-lost', 0, totalLost > 0 ? totalLost : 0, 1000); animateValue('stat-remaining-weight', 0, remaining > 0 ? remaining : 0, 1000); } 
+            else { document.getElementById('stat-total-lost').innerText = (totalLost > 0 ? totalLost : 0).toFixed(1) + " กก."; document.getElementById('stat-remaining-weight').innerText = (remaining > 0 ? remaining : 0).toFixed(1) + " กก."; }
+            
+            let pct = targetDelta > 0 ? Math.floor((totalLost / targetDelta) * 100) : 0; document.getElementById('progress-bar-fill').style.width = `${Math.max(0, Math.min(pct, 100))}%`;
+
+            if (latestW <= targetW) {
+                document.getElementById('subgoal-target').innerText = "🎉 สำเร็จ!"; document.getElementById('subgoal-badge').innerText = "ถึงเป้าหมายหลักแล้ว"; document.getElementById('subgoal-progress-bar').style.width = "100%"; document.getElementById('subgoal-current-text').innerHTML = `<span class="text-xs font-black text-[#a855f7]">สวยเป๊ะ!</span>`;
+            } else {
+                let milestones = []; let m = Math.floor((startW - 0.1) / 2) * 2; 
+                while (m > targetW) { milestones.push(m); m -= 2; } milestones.push(targetW);
+                let nextMilestone = targetW; let prevMilestone = startW;
+                for (let i = 0; i < milestones.length; i++) { if (latestW > milestones[i]) { nextMilestone = milestones[i]; prevMilestone = (i === 0) ? startW : milestones[i-1]; break; } }
+                const subTargetDelta = prevMilestone - nextMilestone; const subLost = prevMilestone - latestW; let subPct = subTargetDelta > 0 ? (subLost / subTargetDelta) * 100 : 0;
+                document.getElementById('subgoal-target').innerText = nextMilestone.toFixed(1) + " กก."; document.getElementById('subgoal-badge').innerText = `เหลืออีก ${(latestW - nextMilestone).toFixed(1)} กก.`; document.getElementById('subgoal-current-text').innerHTML = `<span class="text-xs font-black text-slate-800">${latestW.toFixed(1)}</span> <span class="text-[10px] text-slate-500">/ ${prevMilestone.toFixed(1)} กก.</span>`; document.getElementById('subgoal-progress-bar').style.width = `${Math.max(0, Math.min(subPct, 100))}%`;
+            }
+
+            const tData = logs[realTodayStr] || {};
+            document.getElementById('today-date-text').innerText = `${now.getDate()} ${thaiMonthNames[now.getMonth()]} ${String(now.getFullYear() + 543).slice(-2)}`;
+            
+            const recPlan = getRecommendedWorkout(currentCalMonth, now.getDay());
+            recommendedWkType = recPlan.typeId;
+            recommendedWkLvl = recPlan.level; 
+            
+            document.getElementById('coach-rec-title').innerText = recPlan.displayName;
+            document.getElementById('today-workout-desc').innerText = `วันนี้โค้ชแนะนำ: ${recPlan.displayName}`;
+            if (recPlan.typeId === 'REST') document.getElementById('today-check-workout').disabled = false;
+            
+            document.getElementById('today-check-workout').checked = !!tData.g1; document.getElementById('today-check-if').checked = !!tData.c1; document.getElementById('today-check-carbs').checked = !!tData.c2; document.getElementById('today-check-water').checked = !!tData.c3; document.getElementById('today-weight-input').value = tData.weight || "";
+            document.getElementById('set-start-weight').value = profile.startWeight; document.getElementById('set-target-weight').value = profile.targetWeight; document.getElementById('set-wedding-date').value = profile.weddingDate;
+            const wDateObj = parseDateStr(profile.weddingDate); document.getElementById('wedding-date-label').innerText = `${wDateObj.getDate()} ${thaiMonthNames[wDateObj.getMonth()]} ${wDateObj.getFullYear() + 543} 💍`;
+
+            updateChart(); updateTicketUI(); renderMonthlyQuests(); 
+            
+            if(isInitial) {
+                if(recommendedWkType !== 'REST') {
+                    selectWorkout(recommendedWkType);
+                    setTimeout(() => { selectLevel(recommendedWkLvl); }, 50);
+                } else {
+                    selectWorkout('G1'); selectLevel(0);
+                }
+            }
+        }
+
+        // --- 10. INPUT & SAVING ---
+        function applyCheckboxPopAndFloat(event) {
+            vibratePhone(30);
+            if(event.target.checked) {
+                event.target.classList.add('animate-pop'); setTimeout(() => event.target.classList.remove('animate-pop'), 400);
+                const msgs = ["เริ่ดมาก!", "เก่งที่สุด!", "สวยเป๊ะ!", "ทำดีมาก!"]; spawnFloatingText(event, msgs[Math.floor(Math.random() * msgs.length)]);
+            }
+        }
+        function toggleTodayTask(k, event) { 
+            if (k === 'g1' && recommendedWkType !== 'REST') {
+                event.preventDefault(); event.target.checked = !event.target.checked;
+                switchView('timer'); return;
+            }
+            applyCheckboxPopAndFloat(event); 
+            if(!logs[realTodayStr]) logs[realTodayStr] = {}; 
+            logs[realTodayStr][k] = event.target.checked; 
+            localStorage.setItem('brideWeddingLogs', JSON.stringify(logs)); 
+            saveLogToCloud(realTodayStr); // ☁️
+            refreshAll(false); 
+        }
+        function toggleModalTask(event) { applyCheckboxPopAndFloat(event); }
+
+        function saveTodayWeight(btnElement) {
+            const v = document.getElementById('today-weight-input').value; if(!v) return; vibratePhone(40); const oriText = btnElement.innerText;
+            btnElement.innerHTML = `<svg class="animate-spin h-5 w-5 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>`; btnElement.classList.add('pointer-events-none');
+            setTimeout(() => {
+                vibratePhone([30, 50, 30]); btnElement.innerText = "✅ สำเร็จ!"; btnElement.className = "bg-emerald-500 text-white font-bold px-5 py-2.5 rounded-xl text-sm transition flex justify-center items-center pointer-events-none"; spawnFloatingText({target: btnElement}, "บันทึกข้อมูลแล้ว!");
+                if(!logs[realTodayStr]) logs[realTodayStr] = {}; logs[realTodayStr].weight = parseFloat(v); 
+                localStorage.setItem('brideWeddingLogs', JSON.stringify(logs)); 
+                saveLogToCloud(realTodayStr); // ☁️
+                refreshAll(true); checkMilestonesAndCelebrate(v); 
+                setTimeout(() => { btnElement.innerText = oriText; btnElement.className = "neu-btn-primary px-6 font-bold text-sm"; }, 1500);
+            }, 600);
+        }
+
+        function saveModalReport(btnElement) {
+            vibratePhone(40); const oriText = btnElement.innerText; const w = document.getElementById('modal-weight').value;
+            btnElement.innerHTML = `<svg class="animate-spin h-5 w-5 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>`; btnElement.classList.add('pointer-events-none');
+            setTimeout(() => {
+                vibratePhone([30, 50, 30]); btnElement.innerText = "✅ สำเร็จ!"; btnElement.className = "bg-emerald-500 text-white font-bold py-3 rounded-xl transition flex justify-center items-center pointer-events-none";
+                if(!logs[selectedModalDate]) logs[selectedModalDate] = {}; if (w) logs[selectedModalDate].weight = parseFloat(w);
+                logs[selectedModalDate].g1 = document.getElementById('modal-goal1').checked; logs[selectedModalDate].c1 = document.getElementById('modal-check1').checked; logs[selectedModalDate].c2 = document.getElementById('modal-check2').checked; logs[selectedModalDate].c3 = document.getElementById('modal-check3').checked;
+                localStorage.setItem('brideWeddingLogs', JSON.stringify(logs));
+                saveLogToCloud(selectedModalDate); // ☁️
+                setTimeout(() => { btnElement.innerText = oriText; btnElement.className = "neu-btn-primary font-bold py-3 text-sm"; closeModal(); refreshAll(true); if(w) checkMilestonesAndCelebrate(w); }, 800);
+            }, 500);
+        }
+
+        function saveProfileSettings(btnElement) {
+            vibratePhone([30,50,30]);
+            profile.startWeight = parseFloat(document.getElementById('set-start-weight').value); profile.targetWeight = parseFloat(document.getElementById('set-target-weight').value); profile.weddingDate = document.getElementById('set-wedding-date').value;
+            localStorage.setItem('brideWeddingProfile', JSON.stringify(profile)); 
+            
+            saveProfileToCloud(); // ☁️ อัปเดตการตั้งค่าขึ้น Cloud
+
+            refreshAll(true);
+            const oriText = btnElement.innerText; btnElement.innerText = "✅ บันทึกเรียบร้อย"; btnElement.classList.add('bg-emerald-500', 'pointer-events-none');
+            setTimeout(() => { btnElement.innerText = oriText; btnElement.classList.remove('bg-emerald-500', 'pointer-events-none'); }, 1500);
+        }
+
+        // --- 11. NAVIGATION & MODALS ---
+        function openDayModal(day, mIdx, dStr) {
+            selectedModalDate = dStr; const data = logs[dStr] || {}; document.getElementById('modal-date').innerText = `${day} ${monthsData[mIdx].name} 69`; document.getElementById('modal-weight').value = data.weight || "";
+            document.getElementById('modal-goal1').checked = !!data.g1; document.getElementById('modal-check1').checked = !!data.c1; document.getElementById('modal-check2').checked = !!data.c2; document.getElementById('modal-check3').checked = !!data.c3;
+            const modal = document.getElementById('dayDetailModal'); const backdrop = document.getElementById('modalBackdrop');
+            modal.classList.remove('hidden'); backdrop.classList.remove('hidden'); setTimeout(() => { modal.classList.remove('translate-y-full'); backdrop.classList.remove('opacity-0'); }, 10);
+        }
+        function closeModal() {
+            vibratePhone(20); const modal = document.getElementById('dayDetailModal'); const backdrop = document.getElementById('modalBackdrop');
+            modal.classList.add('translate-y-full'); backdrop.classList.add('opacity-0'); setTimeout(() => { modal.classList.add('hidden'); backdrop.classList.add('hidden'); }, 300);
+        }
+        function switchView(v) {
+            vibratePhone(20);
+            ['dashboard','calendar','timer','settings','guide'].forEach(id => {
+                document.getElementById(`view-${id}`).classList.add('hidden'); const btn = document.getElementById(`nav-${id}`); 
+                if (btn) {
+                    btn.classList.remove('text-[#a855f7]'); btn.classList.add('text-slate-400');
+                    btn.querySelector('span:first-child').classList.add('opacity-60'); btn.querySelector('span:first-child').classList.remove('drop-shadow-md');
+                }
+            });
+            document.getElementById(`view-${v}`).classList.remove('hidden'); const activeBtn = document.getElementById(`nav-${v}`); 
+            if (activeBtn) {
+                activeBtn.classList.remove('text-slate-400'); activeBtn.classList.add('text-[#a855f7]');
+                activeBtn.querySelector('span:first-child').classList.remove('opacity-60'); activeBtn.querySelector('span:first-child').classList.add('drop-shadow-md');
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' }); 
+        }
+
+        // --- APP INITIALIZATION ---
+        window.onload = () => {
+            refreshAll(true);
+            
+            // ☁️ วิ่งไปขอข้อมูลล่าสุดจาก Google Sheets
+            fetch(API_URL)
+                .then(res => res.json())
+                .then(data => {
+                    let shouldRefresh = false;
+                    
+                    if(data.logs && Object.keys(data.logs).length > 0) {
+                        logs = data.logs; 
+                        localStorage.setItem('brideWeddingLogs', JSON.stringify(logs));
+                        shouldRefresh = true;
+                    }
+                    if(data.profile) {
+                        if(data.profile.profile) profile = data.profile.profile;
+                        if(data.profile.tickets !== undefined) tickets = data.profile.tickets;
+                        if(data.profile.claimedMilestones) claimedMilestones = data.profile.claimedMilestones;
+                        if(data.profile.claimedMonthlyQuests) claimedMonthlyQuests = data.profile.claimedMonthlyQuests;
+                        
+                        localStorage.setItem('brideWeddingProfile', JSON.stringify(profile));
+                        localStorage.setItem('brideWeddingTickets', tickets);
+                        localStorage.setItem('brideWeddingClaimedMilestones', JSON.stringify(claimedMilestones));
+                        localStorage.setItem('brideWeddingMonthlyClaimed', JSON.stringify(claimedMonthlyQuests));
+                        shouldRefresh = true;
+                    }
+
+                    if(shouldRefresh) {
+                        refreshAll(false); 
+                    }
+                })
+                .catch(e => console.log('Load from cloud failed (Offline Mode)', e));
+        };
+    </script>
+</body>
+</html>
